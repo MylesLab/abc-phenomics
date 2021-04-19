@@ -5,7 +5,7 @@ This repository contains files and scripts for the ABC phenomics project. The re
 Contact: Sophie Watts (sophie.watts@dal.ca)
 
 
-##source
+## source
 
 **data cleaning:** script containing the code for data curation.
 
@@ -14,7 +14,7 @@ Contact: Sophie Watts (sophie.watts@dal.ca)
 **supplemental data analysis:** script containing the code for the supplemental data analysis and production of supplemental figures and tables.
 
 
-##Data
+## Data
 
 **2016 2017 pheno table:** file with the full phenotype names for the 2016 and 2017 data and their respective units.
 
@@ -27,11 +27,11 @@ Contact: Sophie Watts (sophie.watts@dal.ca)
 **20201102 meta data:** File containing meta data for accesions in the ABC.
 
 
-##Outputs
+## Outputs
 
 **pheno meta data:** Output file created from the data cleaning script and is the curated file of phenotypic and meta data used for all analyses.
 
-##Figures Tables
+## Figures Tables
 
 **supp tables:** Supplemental tables for the manuscript.
 
