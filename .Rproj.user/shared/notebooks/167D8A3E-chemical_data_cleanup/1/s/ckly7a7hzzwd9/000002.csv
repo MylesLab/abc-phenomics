@@ -1,0 +1,4 @@
+"0","```r
+#re-arrange chemicals into final order
+chem_data <- chem_data[,c(\"Sample\", \"Sample_Name\", \"Source\", \"Label\", \"type\", \"a_pinene\", \"b_pinene\", \"myrcene\", \"a_phella\", \"d_carene\", \"ocimene\", \"g_terpinene\", \"terpinolene\", \"linalool\", \"b_phella_limonene\", \"b_fenchol\", \"c_sabinene\", \"camphor\", \"borneol\", \"a_terpineol\", \"c_bergam\", \"d_guaiene\", \"BCP\", \"a_humulene\", \"g_cadinene\", \"eudesma\", \"tr_BCP\", \"a_guaiene\", \"g_selinene\", \"a_gurjunen\", \"BCP_oxide\", \"t_bergam\", \"tb_farnesene\", \"aromadendrene\", \"g_elemene\", \"guaiol\", \"g_eudesmol\", \"b_eudesmol\", \"a_bisabolol\", \"thc_total\", \"CBG\", \"CBC\", \"THCV\", \"CBD\", \"CBGM\")]
+```"

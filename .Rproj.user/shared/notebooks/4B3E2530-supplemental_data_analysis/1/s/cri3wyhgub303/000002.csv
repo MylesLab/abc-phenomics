@@ -1,0 +1,16 @@
+"0","```r
+pdf(\"supp_figure_4.pdf\", width = 9, height = 6)
+abc_phenos %>% ggplot(aes(x=value))+
+  geom_rect(data = min_max_top_ten, aes(ymin = 0, ymax = Inf, xmin = min_top, xmax = max_top), fill = \"lightgrey\", inherit.aes = FALSE)+
+  geom_histogram(bins=30, size = 0.8)+
+  ylab(\"Count\")+
+  scale_x_continuous(expand = c(0,0))+
+  scale_y_continuous(expand = c(0,0))+
+  facet_wrap(~pheno, scale='free', nrow=2, strip.position = \"bottom\", labeller=labeller(pheno = labels))+
+  theme(strip.placement = \"outside\", strip.background = element_blank(), panel.spacing = unit(2, \"lines\"), axis.title.x = element_blank(), strip.text.x = element_text(size = 8, face = \"bold\"), axis.text.x = element_text(size = 7), axis.text.y = element_text(size = 7))
+dev.off()
+
+```"
+"1","null device 
+          1 
+"

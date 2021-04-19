@@ -1,0 +1,17 @@
+"0","```r
+#load data
+abc_phenos <- read_csv(\"../outputs/20201003_pheno_meta_data.csv\")
+
+```"
+"1","Parsed with column specification:
+cols(
+  .default = col_double(),
+  PLANTID = [31mcol_character()[39m,
+  origin = [31mcol_character()[39m,
+  species = [31mcol_character()[39m,
+  use = [31mcol_character()[39m,
+  country = [31mcol_character()[39m,
+  world = [31mcol_character()[39m
+)
+See spec(...) for full column specifications.
+"

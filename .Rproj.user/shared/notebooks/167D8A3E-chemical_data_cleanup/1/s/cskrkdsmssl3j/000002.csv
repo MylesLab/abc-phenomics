@@ -1,0 +1,10 @@
+"0","```r
+#load samples with genetic data.
+gen_samples <- read_table2(\"../data/20191209_bedrocan_gen_filtered.nosex\", 
+                           col_names = FALSE)
+#make vector of samples with genetic and chemical data. There are 137 samples with chemical and genetic data.
+gen_samples <- gen_samples$X1
+#grab rows from chem data that have genetic data.
+gen_chem_data <- subset(chem_data, Sample %in% gen_samples )
+write.csv(gen_chem_data, file = \"../outputs/gen_chem_data.csv\", row.names = F)
+```"

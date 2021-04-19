@@ -1,0 +1,14 @@
+"0","```r
+#convert the ancestry values provided in the file (encoded as characters) into numeric values (score of 1-5 from 1 (full sativa) to 5 (full indica)) 
+pheno<-chem_data[, c(4, 1)]
+pheno$Sample<-as.character(pheno$Sample)
+pheno$type=1   
+pheno[pheno$Label==\"hs\",]$type=2
+pheno[pheno$Label==\"h\",]$type=3
+pheno[pheno$Label==\"hi\",]$type=4
+pheno[pheno$Label==\"i\",]$type=5
+pheno<-pheno[, c(2,3)]
+#merge the new scored labels with the chemical data
+pheno$Sample <- as.numeric(pheno$Sample)
+chem_data <- left_join(chem_data, pheno, by = \"Sample\")
+```"

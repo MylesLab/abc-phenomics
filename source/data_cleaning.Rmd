@@ -1,0 +1,282 @@
+---
+title: "ABC Data Cleaning"
+author: "Sophie Watts"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output:
+  html_notebook:
+    code_folding: hide
+    theme: cerulean
+    toc: true
+    toc_float: true
+---
+```{r setup, include=FALSE}
+#load packages
+library(tidyverse)
+library("readr")
+library("dplyr")
+library("readxl")
+library("RColorBrewer")
+library("gplots")
+library("viridis")
+library("scales")
+library("tidyverse")
+library("cowplot")
+library("gridExtra")
+library("grid")
+library("rstatix")
+
+theme_set(theme_classic())
+```
+
+#Introduction
+This script takes the final REML corrected phenotype file and reduces it to the phenotypes analyzed in the ABC Phenomics paper. This script then also takes the raw meta-data file and cleans it and reduces it to the meta-data categories analyzed in the ABC phenomics paper. At the end of this script, the phenotype and meta-data are merged together into the final file used for all subsequent analyses, figures and supplemental materials.
+
+#Phenotype Data Cleaning
+```{r phenotype_cleaning, message=FALSE, warning=FALSE}
+
+#load phenotype data
+abc_phenos <- read_csv("../data/20190322_final_all_abc_phenos.csv")
+
+#load ripening time from 2017. This phenoytpe was  REML corrected after all the other phenotypes because it wasn't originally going to be included.
+time_ripen <- read_csv("../data/20200305_time_ripen_2017.csv")
+
+#join tables
+abc_phenos <- left_join(abc_phenos, time_ripen, by = "apple_id")
+
+#remove phenotypes we don't need
+#remove phones we don't need to show.
+abc_phenos <- abc_phenos %>% select(-firmness_var_16_stor, -weight_var_16_harv, -firmness_var_16_harv, -brix_var_16_harv, -branch_val_16_harv, -change_firmness_var_16, -percent_firmness_var_16, -change_acidity_16, -change_brix_avg_16, -change_brix_acid_16, -change_weight_avg_16, -change_firmness_avg_16, -firmness_var_17_stor, -percent_decay_17_stor, -percent_disorder_17_stor, -firmness_var_17_harv, -change_firmness_var_17, -change_acidity_17, -change_brix_17, -change_weight_avg_17, -change_firmness_avg_17, -percent_firmness_var_17, -change_brix_acid_17, -dead_trees, -oct_frost_percent_disordered, -spring_frost_lower_index, -spring_frost_upper_index, -spring_frost_pooled_index, -spring_frost_difference_index, -flowering_gdd_16_harv, -date_gdd_16_harv, -date_gdd_17_harv)
+
+
+#we also want to inlcude the ACCID that's linked to the apple ids, load ABC population file.
+abc_pop_info <- read_excel("../data/20200204_abc_pop_info.xlsx")
+#delete  irrelevant columns
+abc_pop_info <- abc_pop_info %>% select(PLANTID, ACCID, origin, apple_id)
+abc_pop_info <- abc_pop_info[!duplicated(abc_pop_info$apple_id), ]
+
+#join phenotype table and population file.
+abc_phenos <- left_join(abc_phenos, abc_pop_info, by = "apple_id")
+
+
+```
+#Meta-Data Cleaning
+```{r meta_data_cleaning, message=FALSE, warning=FALSE}
+
+#load meta data
+meta_data <- read_excel("../data/20201102_meta_data.xlsx")
+
+#delete columns we don't need
+meta_data$ACCID <- NULL
+meta_data$PLANTID <- NULL
+meta_data$Cultivar <- NULL
+meta_data$X15 <- NULL
+meta_data$X__1 <- NULL
+meta_data$Color <- NULL
+meta_data$grin_country <- NULL
+meta_data$X17 <- NULL
+meta_data$X16 <- NULL
+meta_data$`Info Source` <- NULL
+meta_data$grin_enduse <- NULL
+meta_data$grin_markettype <- NULL
+meta_data$origin <- NULL
+meta_data$type <- NULL
+meta_data$`Discovered/described/cultivated` <- NULL
+meta_data$Harvest <- NULL
+meta_data$World <- NULL
+meta_data$...22 <- NULL
+
+#rename columns
+meta_data <- meta_data %>% dplyr:::rename(release_year = 'Release Year') %>% dplyr:::rename(country = Country) %>% dplyr:::rename(use = Use)
+
+#look at the species
+#table(meta_data$species)
+#change some of the species names.
+meta_data[which(meta_data$apple_id=="174"), "species"] <- NA
+meta_data[which(meta_data$species=="sieversii var. kirghisorum"), "species"] <- "sieversii"
+meta_data[which(meta_data$species=="sieversii var. turkmenorum"), "species"] <- "sieversii"
+meta_data[which(meta_data$species=="NA"), "species"] <- NA
+meta_data[which(meta_data$species=="pumila"), "species"] <- "domestica"
+
+#look at release year
+#table(meta_data$release_year)
+meta_data[which(meta_data$apple_id== 468), "release_year"] <- NA
+meta_data[which(meta_data$release_year== "NA"), "release_year"] <- NA
+meta_data$release_year <- as.numeric(as.character(meta_data$release_year))
+
+#look at country
+#table(meta_data$country)
+meta_data[which(meta_data$country== "NA"), "country"] <- NA
+
+#clean up country names
+meta_data[which(meta_data$country=="australia"), "country"] <- "Australia"
+meta_data[which(meta_data$country=="belgium"), "country"] <- "Belgium"
+meta_data[which(meta_data$country=="czech Republic"), "country"] <- "Czech Republic"
+meta_data[which(meta_data$country=="denmark"), "country"] <- "Denmark"
+meta_data[which(meta_data$country=="former Soviet Union"), "country"] <- "Former Soviet Union"
+meta_data[which(meta_data$country=="france"), "country"] <- "France"
+meta_data[which(meta_data$country=="England"), "country"] <- "United Kingdom"
+meta_data[which(meta_data$country=="Wales"), "country"] <- "United Kingdom"
+meta_data[which(meta_data$country=="Scotland"), "country"] <- "United Kingdom"
+meta_data[which(meta_data$country=="germany"), "country"] <- "Germany"
+meta_data[which(meta_data$country=="isreal"), "country"] <- "Isreal"
+meta_data[which(meta_data$country=="italy"), "country"] <- "Italy"
+meta_data[which(meta_data$country=="japan"), "country"] <- "Japan"
+meta_data[which(meta_data$country=="kazakhstan"), "country"] <- "Kazakhstan"
+meta_data[which(meta_data$country=="latvia"), "country"] <- "Latvia"
+meta_data[which(meta_data$country=="netherlands"), "country"] <- "Netherlands"
+meta_data[which(meta_data$country=="poland"), "country"] <- "Poland"
+meta_data[which(meta_data$country=="romania"), "country"] <- "Romania"
+meta_data[which(meta_data$country=="south Africa"), "country"] <- "South Africa"
+meta_data[which(meta_data$country=="sweden"), "country"] <- "Sweden"
+meta_data[which(meta_data$country=="switzerland"), "country"] <- "Switzerland"
+meta_data[which(meta_data$country=="yugoslavia"), "country"] <- "Yugoslavia"
+meta_data[which(meta_data$country=="europe"), "country"] <- "Europe"
+meta_data[which(meta_data$country=="canada"), "country"] <- "Canada"
+meta_data[which(meta_data$country=="hungary"), "country"] <- "Hungary"
+meta_data[which(meta_data$country=="Isreal"), "country"] <- "Israel"
+
+
+# Create replacements data frame
+old_replaces <- data.frame(country = c('Afghanistan', 'Algeria','Austria', 'Belgium', 'Bulgaria', 'China', 'Czech Republic', 'Denmark', 'Estonia', 'Europe', 'Finland', 'Former Soviet Union', 'France', 'Germany', 'Hungary', 'India', 'Ireland', 'Israel', 'Italy', 'Japan', 'Kazakhstan', 'Latvia', 'Lithuania', 'Macedonia', 'Netherlands', 'Pakistan', 'Poland', 'Portugal', 'Romania', 'Russia', 'Serbia', 'Spain', 'Sweden', 'Switzerland', 'Tajikistan', 'Turkmenistan', 'Ukraine', 'United Kingdom', 'Uzbekistan', 'Yugoslavia'), old = "old")
+
+new_replaces <- data.frame(country = c('Australia', 'Brazil', 'Canada', 'New Zealand',  'United States', 'South Africa', 'Zimbabwe'), new = "new")
+
+meta_data <- full_join(meta_data, old_replaces, by = "country")
+meta_data <- full_join(meta_data, new_replaces, by = "country")
+
+#unite
+meta_data <- unite(meta_data, location, old, new)
+#table(meta_data$location)
+
+#fix values in columns
+meta_data[which(meta_data$location== "NA_NA"), "location"] <- NA
+meta_data[which(meta_data$location== "NA_new"), "location"] <- "new"
+meta_data[which(meta_data$location== "old_NA"), "location"] <- "old"
+
+#look at use column
+#table(meta_data$use)
+meta_data[which(meta_data$use== "NA"), "use"] <- NA
+#change values in "use" column to either cider of dessert.
+cider_replaces <- data.frame(use = c("cider", "Cider", "Cooking/Cider"), cider = "cider")
+dessert_replaces <- data.frame(use = c("cooking", "Cooking", "dessert", "Dessert", "eating", "Eating"), dessert = "dessert")
+wild_replaces <- data.frame(use = c("wild", "Wild"), wild = "wild")
+
+meta_data <- full_join(meta_data, cider_replaces, by = "use")
+meta_data <- full_join(meta_data, dessert_replaces, by = "use")
+meta_data <- full_join(meta_data, wild_replaces, by = "use")
+
+#recode crab uses
+meta_data[which(meta_data$use== "Crab Apple"), "use"] <- "crab"
+meta_data[which(meta_data$use== "Crab"), "use"] <- "crab"
+meta_data[which(meta_data$use== "Rootstock"), "use"] <- "rootstock"
+
+meta_data <- unite(meta_data, new_use, cider, dessert, wild)
+meta_data[which(meta_data$new_use== "cider_NA_NA"), "new_use"] <- "cider"
+meta_data[which(meta_data$new_use== "NA_dessert_NA"), "new_use"] <- "dessert"
+meta_data[which(meta_data$new_use== "NA_NA_wild"), "new_use"] <- "wild"
+meta_data[which(meta_data$use== "rootstock"), "new_use"] <- "rootstock"
+meta_data[which(meta_data$use== "crab"), "new_use"] <- "crab"
+meta_data[which(meta_data$new_use== "NA_NA_NA"), "new_use"] <- NA
+
+#delete use column
+meta_data$use <- NULL
+#rename columns
+meta_data <- meta_data %>% dplyr::rename(use = new_use) %>% dplyr::rename(world = location)
+names(meta_data)[names(meta_data) == "new_use"] <- "use"
+names(meta_data)[names(meta_data) == "location"] <- "world"
+
+
+#check
+#Use there are 104, cider, 805 dessert, 79 wild
+wild <-meta_data[which(meta_data$use== "wild"), ]
+
+#species: 1032 domestica, 78 sieversii
+sieversii <-meta_data[which(meta_data$species== "sieversii"), ]
+kazakh <-meta_data[which(meta_data$country== "Kazakhstan"), ]
+
+#world: 546 new, 546 old
+#table(meta_data$world)
+
+#change apple id 200 to wild use since it's sieversii
+meta_data[which(meta_data$apple_id== 200), "use"] <- "wild"
+#Change apple id 193 and 190 use to NA because the species is domestica so their use is not wild.
+meta_data[which(meta_data$apple_id== 193), "use"] <- NA
+meta_data[which(meta_data$apple_id== 190), "use"] <- NA
+
+#check
+#table(meta_data$use)
+#now there are 104 cider, 804 dessert, 78 wild, 5 crab, 1 rootstock.
+#table(meta_data$world)
+#now there are 546 new world and 546 old (there will be 469 for comparisons when the wild sieversii apples are removed.)
+
+#GRIN table was updated, Barenhecke 3 Klipphausen (apple ID = 199) is actually sylvestris not domestica, so correct this.
+meta_data[which(meta_data$apple_id== 199), "species"] <- "sylvestris"
+
+#table(meta_data$species)
+#1031 domestica, 4 hybrids, 78 sieversii and 3 sylvestris Perfect, number of wild matches number of sieversii.
+
+species <- meta_data %>% group_by(species) %>% get_summary_stats(apple_id, show = "n")
+levels(median_pc_labels$type) <- c("sativa", "indica")
+median_pc_labels %>% kable() %>% kable_styling()
+
+
+```
+
+#Merge Phenotype and Meta-Data
+```{r final_pheno, message=FALSE, warning=FALSE}
+
+#merge tables
+final_phenos <- left_join(meta_data, abc_phenos, by = "apple_id")
+
+#re-arrange order of the columns
+col_order <- c(46, 1, 47, 48, 2, 6, 4, 5, 3, 7:45)
+final_phenos <- final_phenos[, col_order] 
+
+
+#cross reference USDA species classifications from the "Genomic consequences of apple domestication" to make sure there are no other species to correct.
+
+usda <- read_csv("~/Downloads/supp tables/TableS1.csv")
+
+usda <- dplyr::select(usda, cultivar, ACCID, species)
+
+usda <- usda[!is.na(usda$ACCID),]
+
+usda <- usda[!duplicated(usda$ACCID),]
+
+table(table(usda$ACCID))
+
+#take out the duplicated ACCID from final phenos
+table(table(final_phenos$ACCID))
+
+check_pheno <- final_phenos[!is.na(final_phenos$ACCID),]
+
+check_pheno <- check_pheno[!duplicated(check_pheno$ACCID),]
+
+check_pheno <- dplyr::select(check_pheno, PLANTID, ACCID, species)
+
+table(table(check_pheno$ACCID))
+
+test <- left_join(check_pheno, usda, by = "ACCID")
+
+test <- test[!is.na(test$species.x),]
+test <- test[!is.na(test$species.y),]
+
+table(test$species.x == test$species.y)
+
+vec <- test$species.y
+
+mismatch <- subset(test, !(vec %in% test$species.x))
+
+#The only accession that appears to have an incorrect species is Alexander which we have labelled as Domestica but GRIN says it's a hybrid. We will change it to a hybrid.
+
+final_phenos[which(final_phenos$apple_id== 558), "species"] <- "hybrid"
+
+table(final_phenos$species)
+#1030 domestica, 5 hybrids, 78 sieversii and 3 sylvestris Perfect, number of wild matches number of sieversii.
+
+#save
+write.table(final_phenos, file = "../outputs/pheno_meta_data.csv", quote = F, sep = ",", row.names = F)
+
+
+
+```

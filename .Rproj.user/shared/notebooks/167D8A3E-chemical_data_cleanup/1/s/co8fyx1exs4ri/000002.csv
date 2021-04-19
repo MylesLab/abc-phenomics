@@ -1,0 +1,5 @@
+"0","```r
+#correct outliers
+chem_data[which(chem_data$Sample==\"239\"), \"CBGM\"] <- 0.375
+chem_data[which(chem_data$Sample==\"258\"), \"THC\"] <- 73.35
+```"

@@ -1,0 +1,7 @@
+"0","```r
+figure_table <-figure_table %>% mutate_if(is.numeric, signif, digits = 3)
+
+```"
+"1","`mutate_if()` ignored the following grouping variables:
+Column `pheno`
+"

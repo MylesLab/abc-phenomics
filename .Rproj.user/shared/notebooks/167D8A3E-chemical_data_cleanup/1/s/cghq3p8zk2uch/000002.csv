@@ -1,0 +1,27 @@
+"0","```r
+#normalize
+#subset into chemical categories and divide each measurement by the samples total chemical content.
+mono_norm <- select(chem_data, \"Sample\", \"a_pinene\":\"a_terpineol\", \"mono_total\")
+for (i in 2:16) {
+  mono_norm[i] <- mono_norm[i] / mono_norm[17]
+}
+mono_norm <- select(mono_norm, \"Sample\": \"a_terpineol\")
+sesqui_norm <- select(chem_data, \"Sample\", \"c_bergam\":\"a_bisabolol\", \"sesqui_total\")
+for (i in 2:20) {
+  sesqui_norm[i] <- sesqui_norm[i] / sesqui_norm[21]
+}
+sesqui_norm <- select(sesqui_norm, \"Sample\":\"a_bisabolol\")
+canna_norm <- select(chem_data, \"Sample\", \"thc_total\":\"CBGM\", \"canna_total\")
+for (i in 2:7) {
+  canna_norm[i] <- canna_norm[i] / canna_norm[8]
+}
+canna_norm <- select(canna_norm, \"Sample\": \"CBGM\")
+#join the normalized tables
+chem_norm <- left_join(mono_norm, sesqui_norm, by = \"Sample\")
+chem_norm <- left_join(chem_norm, canna_norm, by = \"Sample\")
+#rename colnames
+colnames(chem_norm) <- paste0(colnames(chem_norm), '_norm')
+names(chem_norm)[names(chem_norm) == \"Sample_norm\"] <- \"Sample\"
+#join normalized chemicals with \"chem_data\"
+chem_data <- left_join(chem_data, chem_norm, by = \"Sample\")
+```"

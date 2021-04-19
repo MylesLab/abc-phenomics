@@ -1,0 +1,22 @@
+"0","```r
+#Run chemical pca
+chem_data <- read_csv(\"../outputs/chem_data.csv\")
+chem_data4pca = chem_data[, -c(1:5, 46:89)]
+pc_chem <- prcomp(chem_data4pca, scale=T)
+chem_eig <- pc_chem$sdev^2 #eigen values
+#look at PCs loadings
+loadings <- pc_chem$rotation
+pc_chem_load<-as.data.frame(pc_chem$x[,1:10])
+pc_chem_load<-cbind(chem_data[, c(1, 5)], pc_chem_load)
+save(pc_chem_load, file = \"../outputs/pc_chem_load.R\")
+pc_chem_load$type<-as.factor(pc_chem_load$type)
+chem_pca <- ggplot(pc_chem_load, aes(x=PC1, y=PC2, color=type))+
+  geom_point(size=3, stroke=0, alpha=0.7)+
+  theme_bw()+
+  coord_fixed()+
+  scale_color_manual(values = c(\"#feb24c\", \"#fd8d3c\",\"#fc4e2a\",\"#bd0026\", \"#800026\"))+
+  labs(x=paste0(\"PC1 (\",round(chem_eig[1]/sum(chem_eig)*100,2),\"%)\"), y=paste0(\"PC2 (\",round(chem_eig[2]/sum(chem_eig)*100,2),\"%)\"))+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = \"black\", size=10), axis.title=element_text(size = 10, face = \"bold\"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = \"black\", size = 0.2), plot.title = element_text(size = 9))
+#ggsave(\"../figures/chemical_pca.pdf\", plot = chem_pca)
+chem_pca
+```"

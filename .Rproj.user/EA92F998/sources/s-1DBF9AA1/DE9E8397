@@ -1,0 +1,24 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1618348489633.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "DE9E8397",
+    "lastKnownWriteTime" : 1618857397,
+    "last_content_update" : 1618857397754,
+    "path" : "~/Documents/myles_lab/abc_pheno/abc_phenomics_code/source/supplemental_data_analysis.Rmd",
+    "project_path" : "source/supplemental_data_analysis.Rmd",
+    "properties" : {
+        "chunk_output_type" : "inline",
+        "cursorPosition" : "381,0",
+        "last_setup_crc32" : "1DBF9AA12aaf2525",
+        "scrollLine" : "381"
+    },
+    "relative_order" : 9,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

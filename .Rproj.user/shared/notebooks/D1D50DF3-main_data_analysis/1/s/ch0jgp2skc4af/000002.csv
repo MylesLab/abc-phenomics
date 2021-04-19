@@ -1,0 +1,88 @@
+"0","```r
+#load pheno data
+abc_phenos <- read_csv(\"../outputs/20201003_pheno_meta_data.csv\")
+acid_percent <- abc_phenos %>% select(apple_id, percent_acidity_17) %>% gather(key=\"pheno\", value=\"value\", -apple_id) 
+top_ten_acid_percent <-  acid_percent %>% filter(apple_id %in% c(48, 205, 160, 167, 1223, 222, 57, 235, 171))
+brix_percent <- abc_phenos %>% select(apple_id, percent_brix_17) %>% gather(key=\"pheno\", value=\"value\", -apple_id) 
+top_ten_brix_percent <-  brix_percent %>% filter(apple_id %in% c(48, 205, 160, 167, 1223, 222, 57, 235, 171))
+firmness_percent <- abc_phenos %>% select(apple_id, percent_firmness_avg_17) %>% gather(key=\"pheno\", value=\"value\", -apple_id) 
+top_ten_firmness_percent <-  firmness_percent %>% filter(apple_id %in% c(48, 205, 160, 167, 1223, 222, 57, 235, 171))
+weight_percent <- abc_phenos %>% select(apple_id, percent_weight_avg_17) %>% gather(key=\"pheno\", value=\"value\", -apple_id)
+top_ten_weight_percent <-  weight_percent %>% filter(apple_id %in% c(48, 205, 160, 167, 1223, 222, 57, 235, 171))
+#######################################################
+pdf(\"figure_3_storage.pdf\", width = 8, height = 10)
+a1 <- ggplot(abc_phenos, aes(acidity_17_harv, acidity_17_stor))+
+  geom_point(size=1, alpha=0.7, colour = \"darkgrey\")+
+  theme_bw()+
+  labs(x=\"Acidity at harvest (g/L)\", y=\"Acidity after storage (g/L)\")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = \"black\", size=10), axis.title=element_text(size = 10, face = \"bold\"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = \"black\", size = 0.2), plot.title = element_text(size = 9))+
+  coord_fixed(xlim = c(0,27), ylim= c(0,27))+
+  stat_smooth(method=\"lm\", col=\"black\", se = FALSE)+
+  ggtitle(paste(\"r2 = \", signif(cor.test(abc_phenos$acidity_17_harv, abc_phenos$acidity_17_stor, method = \"pearson\")$estimate^2, digits = 3), \" p-value =\", signif(cor.test(abc_phenos$acidity_17_harv, abc_phenos$acidity_17_stor, method = \"pearson\")$p.value, digits = 2)))
+a2 = ggplot(data=abc_phenos, aes(abc_phenos$percent_acidity_17))+
+  geom_rect(data = top_ten_acid_percent, aes(ymin = 0, ymax = Inf, xmin = min(value, na.rm = T), xmax = max(value, na.rm = T)), fill = \"lightgrey\", inherit.aes = FALSE)+
+  geom_histogram(bins = 50)+
+  scale_x_continuous(name = \"Change in acidity during storage (%) N=568\")+
+  scale_y_continuous(name = \"Count\", expand = c(0,0))+
+  theme(axis.text=element_text(colour = \"black\", size=9), axis.title=element_text(size = 10, face = \"bold\"))
+##################################
+b1 <- ggplot(abc_phenos, aes(brix_17_harv, brix_17_stor))+
+  geom_point(size=1, alpha=0.7, colour = \"darkgrey\")+
+  theme_bw()+
+  labs(x=\"SS at harvest (Brix)\", y=\"SS after storage (Brix)\")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = \"black\", size=10), axis.title=element_text(size = 10, face = \"bold\"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = \"black\", size = 0.2), plot.title = element_text(size = 9))+
+  coord_fixed(xlim = c(5,22), ylim= c(5,22))+
+  stat_smooth(method=\"lm\", col=\"black\", se = FALSE)+
+  ggtitle(paste(\"r2 = \", signif(cor.test(abc_phenos$brix_17_harv, abc_phenos$brix_17_stor, method = \"pearson\")$estimate^2, digits = 3), \" p-value =\", signif(cor.test(abc_phenos$brix_17_harv, abc_phenos$brix_17_stor, method = \"pearson\")$p.value, digits = 2)))
+  
+  
+b2 = ggplot(data=abc_phenos, aes(abc_phenos$percent_brix_17))+
+  geom_rect(data = top_ten_brix_percent, aes(ymin = 0, ymax = Inf, xmin = min(value, na.rm = T), xmax = max(value, na.rm = T)), fill = \"lightgrey\", inherit.aes = FALSE)+
+  geom_histogram(bins = 50)+
+  scale_x_continuous(name = \"Change in SS during storage (%) N=601\")+
+  scale_y_continuous(name = \"Count\", expand = c(0,0))+
+  theme(axis.text=element_text(colour = \"black\", size=9), axis.title=element_text(size = 10, face = \"bold\"))
+#############################################
+f1 <- ggplot(abc_phenos, aes(firmness_avg_17_harv, firmness_avg_17_stor))+
+  geom_point(size=1, alpha=0.7, colour = \"darkgrey\")+
+  theme_bw()+
+  labs(x=\"Firmness at harvest (kg/cm2)\", y=\"Firmness after storage (kg/cm2)\")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = \"black\", size=10), axis.title=element_text(size = 10, face = \"bold\"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = \"black\", size = 0.2), plot.title = element_text(size = 9))+
+  coord_fixed(xlim = c(1.5,14.5), ylim= c(1.5,14.5))+
+  stat_smooth(method=\"lm\", col=\"black\", se = FALSE)+
+  ggtitle(paste(\"r2 = \", signif(cor.test(abc_phenos$firmness_avg_17_harv, abc_phenos$firmness_avg_17_stor, method = \"pearson\")$estimate^2, digits = 3), \" p-value = \", signif(cor.test(abc_phenos$firmness_avg_17_harv, abc_phenos$firmness_avg_17_stor, method = \"pearson\")$p.value, digits = 2)))
+f2 = ggplot(data=abc_phenos, aes(abc_phenos$percent_firmness_avg_17))+
+  geom_rect(data = top_ten_firmness_percent, aes(ymin = 0, ymax = Inf, xmin = min(value, na.rm = T), xmax = max(value, na.rm = T)), fill = \"lightgrey\", inherit.aes = FALSE)+
+  geom_histogram(bins = 50)+
+  scale_x_continuous(name = \"Change in firmness during storage (%) N=538\")+
+  scale_y_continuous(name = \"Count\", expand = c(0,0))+
+  theme(axis.text=element_text(colour = \"black\", size=9), axis.title=element_text(size = 10, face = \"bold\"))
+#############################################
+w1 <- ggplot(abc_phenos, aes(weight_avg_17_harv, weight_avg_17_stor))+
+  geom_point(size=1, alpha=0.7, colour = \"darkgrey\")+
+  theme_bw()+
+  labs(x=\"Weight at harvest (g)\", y=\"Weight after storage (g)\")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = \"black\", size=10), axis.title=element_text(size = 10, face = \"bold\"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = \"black\", size = 0.2), plot.title = element_text(size = 9))+
+  coord_fixed(xlim = c(7,460), ylim= c(7,460))+
+  stat_smooth(method=\"lm\", col=\"black\", se = FALSE)+
+  ggtitle(paste(\"r2 = \", signif(cor.test(abc_phenos$weight_avg_17_harv, abc_phenos$weight_avg_17_stor, method = \"pearson\")$estimate^2, digits = 3), \" p-value = \", signif(cor.test(abc_phenos$weight_avg_17_harv, abc_phenos$weight_avg_17_stor, method = \"pearson\")$p.value, digits = 2)))
+w2 = ggplot(data=abc_phenos, aes(abc_phenos$percent_weight_avg_17))+
+  geom_rect(data = top_ten_weight_percent, aes(ymin = 0, ymax = Inf, xmin = min(value, na.rm = T), xmax = max(value, na.rm = T)), fill = \"lightgrey\", inherit.aes = FALSE)+
+  geom_histogram(bins = 50)+
+  scale_x_continuous(name = \"Change in weight during storage (%) N=536\")+
+  scale_y_continuous(name = \"Count\", expand = c(0,0))+
+  theme(axis.text=element_text(colour = \"black\", size=9), axis.title=element_text(size = 10, face = \"bold\"))
+list_of_figures <- list(a1, a2, b1, b2, f1, f2, w1, w2)
+cowplot::plot_grid(
+  plotlist = list_of_figures,
+  nrow = 4, 
+  align = 'hv',
+  labels = \"auto\",
+  hjust = -1
+)
+dev.off()
+
+```"
+"1","null device 
+          1 
+"

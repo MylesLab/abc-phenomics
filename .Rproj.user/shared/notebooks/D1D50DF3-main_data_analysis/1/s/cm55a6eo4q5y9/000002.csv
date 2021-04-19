@@ -1,0 +1,62 @@
+"0","```r
+#load phenotype data
+abc_phenos <- read_csv(\"../outputs/20201003_pheno_meta_data.csv\")
+abc_phenos <- abc_phenos %>% select(apple_id, flowering_jul_16_harv, date_jul_17_harv, time_ripen_2017, firmness_avg_17_harv, percent_firmness_avg_17)
+pdf(\"figure_5.pdf\", width = 9, height = 6)
+a1 <- ggplot(abc_phenos, aes(flowering_jul_16_harv, firmness_avg_17_harv))+
+  geom_point(size=1, alpha=0.7, colour = \"darkgrey\")+
+  theme_bw()+
+  labs(x=\"Flowering date (Julian days)\", y=\"Firmness (kg/cm)\")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = \"black\", size=10), axis.title=element_text(size = 10, face = \"bold\"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = \"black\", size = 0.2), plot.title = element_text(size = 9))+
+  stat_smooth(method=\"lm\", col=\"black\", se = FALSE)+
+  ggtitle(paste(\"r2 = \", signif(cor.test(abc_phenos$flowering_jul_16_harv, abc_phenos$firmness_avg_17_harv, method = \"pearson\")$estimate^2, digits = 3), \" p-value = \", signif(cor.test(abc_phenos$flowering_jul_16_harv, abc_phenos$firmness_avg_17_harv, method = \"pearson\")$p.value, digits = 2))) 
+a2 <- ggplot(abc_phenos, aes(date_jul_17_harv, firmness_avg_17_harv))+
+  geom_point(size=1, alpha=0.7, colour = \"darkgrey\")+
+  theme_bw()+
+  labs(x=\"Harvest date (Julian days)\", y=\"Firmness (kg/cm)\")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = \"black\", size=10), axis.title=element_text(size = 10, face = \"bold\"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = \"black\", size = 0.2), plot.title = element_text(size = 9))+
+  stat_smooth(method=\"lm\", col=\"black\", se = FALSE)+
+  ggtitle(paste(\"r2 = \", signif(cor.test(abc_phenos$date_jul_17_harv, abc_phenos$firmness_avg_17_harv, method = \"pearson\")$estimate^2, digits = 3), \" p-value = \", signif(cor.test(abc_phenos$date_jul_17_harv, abc_phenos$firmness_avg_17_harv, method = \"pearson\")$p.value, digits = 2)))
+a3 <- ggplot(abc_phenos, aes(time_ripen_2017, firmness_avg_17_harv))+
+  geom_point(size=1, alpha=0.7, colour = \"darkgrey\")+
+  theme_bw()+
+  labs(x=\"Time to ripen (days)\", y=\"Firmness (kg/cm)\")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = \"black\", size=10), axis.title=element_text(size = 10, face = \"bold\"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = \"black\", size = 0.2), plot.title = element_text(size = 9))+
+  stat_smooth(method=\"lm\", col=\"black\", se = FALSE)+
+  ggtitle(paste(\"r2 = \", signif(cor.test(abc_phenos$time_ripen_2017, abc_phenos$firmness_avg_17_harv, method = \"pearson\")$estimate^2, digits = 3), \" p-value = \", signif(cor.test(abc_phenos$time_ripen_2017, abc_phenos$firmness_avg_17_harv, method = \"pearson\")$p.value, digits = 2)))
+  
+a4 <- ggplot(abc_phenos, aes(flowering_jul_16_harv, percent_firmness_avg_17))+
+  geom_point(size=1, alpha=0.7, colour = \"darkgrey\")+
+  theme_bw()+
+  labs(x=\"Flowering date (Julian days)\", y=\"Firmness loss during storage (%)\")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = \"black\", size=10), axis.title=element_text(size = 10, face = \"bold\"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = \"black\", size = 0.2), plot.title = element_text(size = 9))+
+  stat_smooth(method=\"lm\", col=\"black\", se = FALSE)+
+  ggtitle(paste(\"r2 = \", signif(cor.test(abc_phenos$flowering_jul_16_harv, abc_phenos$percent_firmness_avg_17, method = \"pearson\")$estimate^2, digits = 3), \" p-value = \", signif(cor.test(abc_phenos$flowering_jul_16_harv, abc_phenos$percent_firmness_avg_17, method = \"pearson\")$p.value, digits = 2)))
+a5 <- ggplot(abc_phenos, aes(date_jul_17_harv, percent_firmness_avg_17))+
+  geom_point(size=1, alpha=0.7, colour = \"darkgrey\")+
+  theme_bw()+
+  labs(x=\"Harvest date (Julian days)\", y=\"Firmness loss during storage (%)\")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = \"black\", size=10), axis.title=element_text(size = 10, face = \"bold\"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = \"black\", size = 0.2), plot.title = element_text(size = 9))+
+  stat_smooth(method=\"lm\", col=\"black\", se = FALSE)+
+  ggtitle(paste(\"r2 = \", signif(cor.test(abc_phenos$date_jul_17_harv, abc_phenos$percent_firmness_avg_17, method = \"pearson\")$estimate^2, digits = 3), \" p-value = \", signif(cor.test(abc_phenos$date_jul_17_harv, abc_phenos$percent_firmness_avg_17, method = \"pearson\")$p.value, digits = 2)))
+a6 <- ggplot(abc_phenos, aes(time_ripen_2017, percent_firmness_avg_17))+
+  geom_point(size=1, alpha=0.7, colour = \"darkgrey\")+
+  theme_bw()+
+  labs(x=\"Time to ripen (days)\", y=\"Firmness loss during storage (%)\")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = \"black\", size=10), axis.title=element_text(size = 10, face = \"bold\"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = \"black\", size = 0.2), plot.title = element_text(size = 9))+
+  stat_smooth(method=\"lm\", col=\"black\", se = FALSE)+
+  ggtitle(paste(\"r2 = \", signif(cor.test(abc_phenos$time_ripen_2017, abc_phenos$percent_firmness_avg_17, method = \"pearson\")$estimate^2, digits = 3), \" p-value = \", signif(cor.test(abc_phenos$time_ripen_2017, abc_phenos$percent_firmness_avg_17, method = \"pearson\")$p.value, digits = 2)))
+list_of_figures <- list(a1, a2, a3, a4, a5, a6)
+cowplot::plot_grid(
+  plotlist = list_of_figures,
+  nrow = 2, 
+  align = 'hv',
+  labels = \"auto\",
+  hjust = -1
+)
+dev.off()
+
+```"
+"1","null device 
+          1 
+"

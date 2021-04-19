@@ -1,0 +1,11 @@
+"0","```r
+rho = p = c()
+for (i in 2:ncol(abc_phenos)) {
+  year_correlation <- cor.test(abc_phenos[,\"release_year\"], abc_phenos[,i], method = \"spearman\")
+  rho[i] = year_correlation$est
+  p[i] = year_correlation$p.val
+}
+
+```"
+"1","Cannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with tiesCannot compute exact p-value with ties
+"

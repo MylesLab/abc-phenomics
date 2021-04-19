@@ -1,0 +1,40 @@
+"0","abc_phenos <- read_csv(""../outputs/20201003_pheno_meta_data.csv"")
+"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  PLANTID = [31mcol_character()[39m,
+  origin = [31mcol_character()[39m,
+  species = [31mcol_character()[39m,
+  use = [31mcol_character()[39m,
+  country = [31mcol_character()[39m,
+  world = [31mcol_character()[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"0","abc_phenos <- abc_phenos %>% select(precocity_16_harv, flowering_jul_16_harv, time_ripen_16_harv, date_jul_16_harv, juiciness_16_harv, weight_avg_16_harv, firmness_avg_16_harv, brix_avg_16_harv, acidity_16_harv, brix_acid_16_harv, percent_weight_16, percent_firmness_avg_16, percent_brix_16, percent_acidity_16)"
+"0","abc_phenos[1:14] <- lapply(abc_phenos[1:14], as.character)"
+"0","abc_phenos[1:14] <- lapply(abc_phenos[1:14], as.numeric)"
+"0","#change from tbl to base dataframe."
+"0","abc_phenos <- as.data.frame(abc_phenos)"
+"0","#create an empty matrix for correlations, make matrix with no data and just col and rows from final pheno table."
+"0","pairwise_pheno_correlations=matrix(,ncol(abc_phenos), ncol(abc_phenos))"
+"0","rownames(pairwise_pheno_correlations)=colnames(abc_phenos)"
+"0","colnames(pairwise_pheno_correlations)=colnames(abc_phenos)"
+"0","#marix for pvalues."
+"0","pairwise_pheno_correlations_pval=matrix(,ncol(abc_phenos), ncol(abc_phenos))"
+"0","rownames(pairwise_pheno_correlations_pval)=colnames(abc_phenos)"
+"0","colnames(pairwise_pheno_correlations_pval)=colnames(abc_phenos)"
+"0","#Treat the data as all quantitative data and run pearson's correlation."
+"0","for (i in 1:ncol(abc_phenos)) {"
+"0","  phenoname_x = colnames(abc_phenos)[i]"
+"0","  for (j in 1:ncol(abc_phenos)) {"
+"0","    phenoname_y = colnames(abc_phenos)[j]"
+"0","    pairwise_pheno_correlations[j,i]=cor.test(abc_phenos[,i], abc_phenos[,j], method = ""pearson"")$estimate^2"
+"0","    pairwise_pheno_correlations_pval[j,i]= cor.test(abc_phenos[,i], abc_phenos[,j], method = ""pearson"")$p.value"
+"0","  }"
+"0","}"
+"0","#bonneferonni correct"
+"0","pairwise_pheno_correlations_pval[upper.tri(pairwise_pheno_correlations_pval)] = p.adjust(pairwise_pheno_correlations_pval[upper.tri(pairwise_pheno_correlations_pval)], method = ""bonferroni"")"
+"0","pairwise_pheno_correlations_pval[lower.tri(pairwise_pheno_correlations_pval)] = p.adjust(pairwise_pheno_correlations_pval[lower.tri(pairwise_pheno_correlations_pval)], method = ""bonferroni"")"

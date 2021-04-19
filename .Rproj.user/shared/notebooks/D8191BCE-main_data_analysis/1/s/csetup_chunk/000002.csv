@@ -1,0 +1,16 @@
+"0","library(""plotrix"")
+"
+"2","
+Attaching package: ‘plotrix’
+
+"
+"2","The following object is masked from ‘package:scales’:
+
+    rescale
+
+"
+"2","The following object is masked from ‘package:gplots’:
+
+    plotCI
+
+"

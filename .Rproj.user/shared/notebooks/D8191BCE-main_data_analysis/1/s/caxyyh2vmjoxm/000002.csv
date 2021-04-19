@@ -1,0 +1,108 @@
+"0","```r
+```r
+```r
+```r
+#Load phenotype table
+abc_phenos <- read_csv(\../outputs/20201003_pheno_meta_data.csv\)
+abc_phenos <- abc_phenos %>% dplyr::select(precocity_16_harv, flowering_jul_16_harv, time_ripen_2017, date_jul_17_harv, juiciness_16_harv, weight_avg_17_harv, firmness_avg_17_harv, brix_17_harv, acidity_17_harv, brix_acid_17_harv, tpc, percent_weight_avg_17, percent_firmness_avg_17, percent_brix_17, percent_acidity_17)
+abc_phenos[1:15] <- lapply(abc_phenos[1:15], as.character)
+abc_phenos[1:15] <- lapply(abc_phenos[1:15], as.numeric)
+#change from tbl to base dataframe.
+abc_phenos <- as.data.frame(abc_phenos)
+#create an empty matrix for correlations, make matrix with no data and just col and rows from final pheno table.
+pairwise_pheno_correlations=matrix(,ncol(abc_phenos), ncol(abc_phenos))
+rownames(pairwise_pheno_correlations)=colnames(abc_phenos)
+colnames(pairwise_pheno_correlations)=colnames(abc_phenos)
+#marix for pvalues.
+pairwise_pheno_correlations_pval=matrix(,ncol(abc_phenos), ncol(abc_phenos))
+rownames(pairwise_pheno_correlations_pval)=colnames(abc_phenos)
+colnames(pairwise_pheno_correlations_pval)=colnames(abc_phenos)
+#Treat the data as all quantitative data and run pearson's correlation.
+for (i in 1:ncol(abc_phenos)) {
+  phenoname_x = colnames(abc_phenos)[i]
+  for (j in 1:ncol(abc_phenos)) {
+    phenoname_y = colnames(abc_phenos)[j]
+    pairwise_pheno_correlations[j,i]=cor.test(abc_phenos[,i], abc_phenos[,j], method = \pearson\)$estimate
+    pairwise_pheno_correlations_pval[j,i]= cor.test(abc_phenos[,i], abc_phenos[,j], method = \pearson\)$p.value
+  }
+}
+#bonneferonni correct
+pairwise_pheno_correlations_pval[upper.tri(pairwise_pheno_correlations_pval)] = p.adjust(pairwise_pheno_correlations_pval[upper.tri(pairwise_pheno_correlations_pval)], method = \bonferroni\)
+pairwise_pheno_correlations_pval[lower.tri(pairwise_pheno_correlations_pval)] = p.adjust(pairwise_pheno_correlations_pval[lower.tri(pairwise_pheno_correlations_pval)], method = \bonferroni\)
+#make the heat map/
+#Set colour.
+hmcol = colorRampPalette(brewer.pal(7, \BrBG\))
+#Get one half of correlation square (aka one triangle). Set lower to NA.
+pairwise_pheno_correlations[lower.tri(pairwise_pheno_correlations)] <- NA
+#make heat map for correlations without key.
+pdf(\figure_4_heatmap.pdf\, width = 8, height = 8)
+mar.default <- c(0,0,0,0)
+par(mar=mar.default, cex = 0.5)
+heatmap.2(pairwise_pheno_correlations,
+          col = hmcol(1000),
+          key=T,
+          keysize = 2.5,
+          symm = T,
+          Colv = F,
+          Rowv = F,
+          trace=\none\,
+          dendrogram = \none\,
+          density.info = \none\,
+          symbreaks = T,
+          colsep = c(0:28),
+          rowsep = c(0:28),
+          sepcolor = \white\,
+          sepwidth = c(0.05, 0.05),
+          symkey = T,
+          margin = c(12,12)
+          )
+dev.off()
+
+```
+```
+```
+```"
+"1","RStudioGD 
+        2 
+"
+"0","```r
+```r
+```r
+```r
+#heat map for pvals of correlations.
+#Get one half of correltaion square (aka one triangle). Set lower to NA.
+pairwise_pheno_correlations_pval[upper.tri(pairwise_pheno_correlations_pval)] <- NA
+#Pick colours.
+hmcol_p = rev(brewer.pal(3, \YlGn\))
+hmcol_p[3] = \#F7F7F7\
+pdf(\figure_4_heatmap_pval.pdf\, width = 8, height = 8)
+```
+```r
+mar.default <- c(0,0,0,0)
+par(mar=mar.default, cex = 0.5)
+heatmap.2(pairwise_pheno_correlations_pval,
+          col = hmcol_p,
+          key=T,
+          keysize = 0.5,
+          symm = T,
+          Colv = F,
+          Rowv = F,
+          trace=\none\,
+          dendrogram = \none\,
+          density.info = \none\,
+          breaks = c(0, 0.01, 0.05, 1),
+          revC = F,
+          symbreaks = T,
+          colsep = c(0:28),
+          rowsep = c(0:28),
+          sepcolor = \white\,
+          sepwidth = c(0.05, 0.05),
+          symkey = T,
+          margin = c(12, 12)
+          )
+```
+```
+```
+```"
+"1","Error in plot.new() : figure margins too large
+"

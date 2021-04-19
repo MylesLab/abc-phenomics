@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1618845514341.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "D036EF20",
+    "lastKnownWriteTime" : 6873445625048858630,
+    "last_content_update" : 1618845514341,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "9B9DE86F",
+        "caption" : "abc_phenos",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=abc_phenos&cache_key=9B9DE86F",
+        "displayedObservations" : 1119,
+        "environment" : "",
+        "object" : "abc_phenos",
+        "preview" : 0,
+        "totalObservations" : 1119,
+        "variables" : 15
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

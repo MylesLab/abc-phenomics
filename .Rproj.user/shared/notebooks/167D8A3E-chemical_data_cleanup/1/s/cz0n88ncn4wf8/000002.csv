@@ -1,0 +1,4 @@
+"0","```r
+#Save full chemical dataset
+write.csv(chem_data, file = \"../outputs/chem_data.csv\", row.names = F)
+```"

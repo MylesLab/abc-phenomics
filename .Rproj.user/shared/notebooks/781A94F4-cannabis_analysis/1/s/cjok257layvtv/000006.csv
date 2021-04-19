@@ -1,0 +1,20 @@
+"1","
+	Wilcoxon rank sum test
+
+data:  sativa$PC1 and indica$PC1
+W = 243, p-value = 0.002054
+alternative hypothesis: true location shift is not equal to 0
+"
+"0","```r
+#Wilcoxon test on PC2
+sativa_pc2 <- pc_labels[which(pc_labels$type == 1), \"PC2\"]
+indica_pc2 <- pc_labels[which(pc_labels$type == 5), \"PC2\"]
+wilcox.test(sativa_pc2$PC2, indica_pc2$PC2, paired = F, alternative = \"two.sided\")
+```"
+"1","
+	Wilcoxon rank sum test
+
+data:  sativa_pc2$PC2 and indica_pc2$PC2
+W = 167, p-value = 1.436e-05
+alternative hypothesis: true location shift is not equal to 0
+"

@@ -1,0 +1,11 @@
+"0","```r
+#merge delta 8 and CBN with THC
+chem_data <- chem_data %>% mutate(thc_total = THC+d8THC+CBN)
+#remove the CBN, delta-8-THC, and THC columns
+chem_data <- subset(chem_data, select = -c(THC, d8THC, CBN))
+#merge limonene and b_phella then delete them.
+chem_data <- chem_data %>% mutate(b_phella_limonene = b_phella + limonene)
+chem_data <- subset(chem_data, select = -c(b_phella, limonene))
+#rearrange compounds into the same order as when they were originally loaded.
+chem_data <- chem_data[,c(1:9, 49, 10:46, 48, 47)]
+```"

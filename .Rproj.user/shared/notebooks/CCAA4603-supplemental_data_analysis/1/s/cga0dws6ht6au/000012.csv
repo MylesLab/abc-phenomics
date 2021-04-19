@@ -1,0 +1,43 @@
+"0","abc_phenos <- read_csv(""../outputs/20201003_pheno_meta_data.csv"")
+"
+"2","Parsed with column specification:
+cols(
+  .default = col_double(),
+  PLANTID = [31mcol_character()[39m,
+  origin = [31mcol_character()[39m,
+  species = [31mcol_character()[39m,
+  use = [31mcol_character()[39m,
+  country = [31mcol_character()[39m,
+  world = [31mcol_character()[39m
+)
+"
+"2","See spec(...) for full column specifications.
+"
+"0","#load in test table with new names of the phenos that are shared between the two years and this table has been made with new pheno names so that we can more easily run a loop."
+"0","name_table <- read_delim(""../data/2016_2017_pheno_table.txt"", "
+"0","    ""\t"", escape_double = FALSE, trim_ws = TRUE)"
+"2","Parsed with column specification:
+cols(
+  name_16 = [31mcol_character()[39m,
+  name_17 = [31mcol_character()[39m,
+  new_name = [31mcol_character()[39m,
+  unit = [31mcol_character()[39m
+)
+"
+"0","abc_matrix = as.matrix(abc_phenos)"
+"0","pdf(""supp_figure_3.pdf"", width = 10, height = 12)"
+"0","par(mfrow = c(5, 4))"
+"0","for (i in 1:nrow(name_table)) {"
+"0","  names_vec = as.character(name_table[i,])"
+"0","  pheno1 = as.numeric(abc_matrix[,names_vec[1]])"
+"0","  pheno2 = as.numeric(abc_matrix[,names_vec[2]])"
+"0","  index_both_phenos = which(!is.na(pheno1) & !is.na(pheno2))"
+"0","  maxlim = max(c(pheno1[index_both_phenos],pheno2[index_both_phenos]),na.rm = T)"
+"0","  maxlim = maxlim * 1.1"
+"0","  minlim = min(c(pheno1[index_both_phenos],pheno2[index_both_phenos]),na.rm = T)"
+"0","  minlim = minlim * 0.9"
+"0","  cortest = cor.test(pheno1, pheno2, method = ""pearson"")"
+"0","  r2 = as.numeric(round(cortest$estimate^2, 3))"
+"0","  pval = as.numeric(signif(cortest$p.val, 3))*17"
+"0","  plot(pheno1, pheno2, pch=16, col=""darkgrey"", xlab = ""2016"", ylab = ""2017"", sub = paste(""r2 = "", r2, "" p ="", pval, "" N ="", length(index_both_phenos)), main = paste(names_vec[3], names_vec[4]), xlim = c(minlim, maxlim), ylim = c(minlim, maxlim), abline(lm(pheno2 ~ pheno1)))"
+"0","}"

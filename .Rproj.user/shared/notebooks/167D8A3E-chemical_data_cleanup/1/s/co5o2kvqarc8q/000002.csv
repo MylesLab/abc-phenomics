@@ -1,0 +1,5 @@
+"0","```r
+#remove chemicals.
+chem_data <- chem_data[, colSums(chem_data != 0) > 1] 
+#now 40 chemicals remain
+```"

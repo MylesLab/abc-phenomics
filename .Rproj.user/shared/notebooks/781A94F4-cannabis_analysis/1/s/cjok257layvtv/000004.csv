@@ -1,0 +1,60 @@
+"0","```r
+#Are samples labeled 100% indica are are significantly different along PC1 and PC2 compared to those labeled 100% sativa?
+pc_labels <- select(pc_geno_load, Taxa, PC1, PC2)
+pc_labels$Taxa <- as.numeric(as.character(pc_labels$Taxa))
+labels <- select(gen_chem_data, Sample, type)
+pc_labels <- full_join(labels, pc_labels, by = c(\"Sample\" = \"Taxa\"))
+pc_labels$type <- as.numeric(pc_labels$type)
+#Is PC1 and PC2 correlated with labels/ancestry. Correlate the PC1 values and PC2 values with labels, run a linear model (lm(PC1 ~ label))
+summary(lm(PC1 ~ type, data = pc_labels))
+```"
+"1","
+Call:
+lm(formula = PC1 ~ type, data = pc_labels)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-165.53  -57.54   11.03   52.53  121.33 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  -57.628     14.290  -4.033 9.18e-05 ***
+type          18.577      4.209   4.413 2.07e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 67.95 on 135 degrees of freedom
+Multiple R-squared:  0.1261,	Adjusted R-squared:  0.1196 
+F-statistic: 19.48 on 1 and 135 DF,  p-value: 2.066e-05
+"
+"0","```r
+summary(lm(PC2 ~ type, data = pc_labels))
+```"
+"1","
+Call:
+lm(formula = PC2 ~ type, data = pc_labels)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-131.993  -43.911   -1.675   42.232  154.051 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  -54.589     13.430  -4.065 8.12e-05 ***
+type          17.597      3.956   4.448 1.79e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 63.86 on 135 degrees of freedom
+Multiple R-squared:  0.1278,	Adjusted R-squared:  0.1214 
+F-statistic: 19.79 on 1 and 135 DF,  p-value: 1.793e-05
+"
+"0","```r
+#remove rows that are 2-4.
+pc_labels <- pc_labels[which(pc_labels$type == 1 | pc_labels$type == 5 ),]
+pc_labels$type <- as.factor(pc_labels$type)
+pc_labels <- dplyr::select(pc_labels, type, PC1, PC2)
+median_pc_labels <- pc_labels %>% group_by(type) %>% get_summary_stats(PC1, PC2, type = \"median\")
+levels(median_pc_labels$type) <- c(\"sativa\", \"indica\")
+median_pc_labels %>% kable() %>% kable_styling()
+```"

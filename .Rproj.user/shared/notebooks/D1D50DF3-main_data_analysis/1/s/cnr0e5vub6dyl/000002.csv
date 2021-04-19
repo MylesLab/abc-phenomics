@@ -1,0 +1,62 @@
+"0","```r
+#select phenos for figure
+abc_pheno <- abc_pheno %>% select(apple_id, precocity_16_harv, flowering_jul_16_harv, time_ripen_2017, date_jul_17_harv, weight_avg_17_harv, firmness_avg_17_harv, brix_17_harv, acidity_17_harv, tpc)  %>% gather(key=\"pheno\", value=\"value\", -apple_id) 
+#change the phenotype to a factor and reorder the factor
+class(abc_pheno$pheno)
+
+```"
+"1","[1] \"character\"
+"
+"0","```r
+abc_pheno$pheno <- as.factor(abc_pheno$pheno)
+levels(abc_pheno$pheno)
+```"
+"1","[1] \"acidity_17_harv\"       \"brix_17_harv\"          \"date_jul_17_harv\"      \"firmness_avg_17_harv\" 
+[5] \"flowering_jul_16_harv\" \"precocity_16_harv\"     \"time_ripen_2017\"       \"tpc\"                  
+[9] \"weight_avg_17_harv\"   
+"
+"0","```r
+#set the levels for the factors and reoder the levels/rename
+abc_pheno$pheno <- factor(abc_pheno$pheno, levels=c(\"precocity_16_harv\", \"flowering_jul_16_harv\", \"time_ripen_2017\", \"date_jul_17_harv\", \"weight_avg_17_harv\", \"firmness_avg_17_harv\",  \"brix_17_harv\", \"acidity_17_harv\", \"tpc\"))
+levels(abc_pheno$pheno)
+```"
+"1","[1] \"precocity_16_harv\"     \"flowering_jul_16_harv\" \"time_ripen_2017\"       \"date_jul_17_harv\"     
+[5] \"weight_avg_17_harv\"    \"firmness_avg_17_harv\"  \"brix_17_harv\"          \"acidity_17_harv\"      
+[9] \"tpc\"                  
+"
+"0","```r
+#the top ten apple varieties produced in the US in 2018 are as follows: Red Delicious (48), Gala (205), Fuji (160), Granny Smith (167), Honeycrisp (1223), Golden Delicious (222), McIntosh (57), Pink Lady (235), Rome (we don't have just Rome in the ABC) and Empire (171).
+#filter the top nine apples then calculate the max and the mean, then summarize to get min and max
+top_nine <-  abc_pheno %>% filter(apple_id %in% c(48, 205, 160, 167, 1223, 222, 57, 235, 171))
+#caluclate min of each trait
+min_top_nine <- top_nine %>% group_by(pheno) %>% slice(which.min(value))
+#caluclate max of each trait
+max_top_nine <- top_nine %>% group_by(pheno) %>% slice(which.max(value))
+#calculate the mean of the top nine
+mean_top_nine <- top_nine %>% group_by(pheno) %>% summarise(mean = mean(value, na.rm=T))
+#calculate IQR
+iqr_top_nine <- top_nine %>% group_by(pheno) %>% summarise(iqr_top_nine= IQR(value, na.rm=T))
+#make a table with the max and min values together
+min_max_top_nine <- left_join(min_top_nine, max_top_nine, by = \"pheno\")
+min_max_top_nine <- left_join(min_max_top_nine, mean_top_nine, by = \"pheno\")
+min_max_top_nine <- left_join(min_max_top_nine, iqr_top_nine, by = \"pheno\")
+min_max_top_nine <- min_max_top_nine %>% select(-c(apple_id.x, apple_id.y))
+#rename columns
+colnames(min_max_top_nine)[colnames(min_max_top_nine)==\"value.x\"] <- \"min_top\"
+colnames(min_max_top_nine)[colnames(min_max_top_nine)==\"value.y\"] <- \"max_top\"
+colnames(min_max_top_nine)[colnames(min_max_top_nine)==\"mean\"] <- \"mean_top\"
+min_max_top_nine <- min_max_top_nine %>% group_by(pheno)
+#make labels for each panel in the facet grid
+labels <- c(precocity_16_harv = \"Precocity N=1109\", flowering_jul_16_harv = \"Flowering Date (JD) N=1069\", time_ripen_2017 = \"Time to Ripen (days) N=834\", date_jul_17_harv = \"Harvest Date (JD) N=866\", weight_avg_17_harv = \"Weight (g) N=862\", firmness_avg_17_harv = \"Firmness (kg/cm^2) N=863\",  brix_17_harv = \"SS (brix) N=857\", acidity_17_harv = \"Acidity (g/L) N=834\", tpc = \"Phenolic Content N=472\")
+#make histograms for figure 2
+figure_2 <- abc_pheno %>% ggplot(aes(x=value))+
+  geom_rect(data = min_max_top_nine, aes(ymin = 0, ymax = Inf, xmin = min_top, xmax = max_top), fill = \"lightgrey\", inherit.aes = FALSE)+
+  geom_histogram(bins=30, size = 0.8)+
+  ylab(\"Count\")+
+  scale_x_continuous(expand = c(0,0))+
+  scale_y_continuous(expand = c(0,0))+
+  facet_wrap(~pheno, scale='free', nrow=3, strip.position = \"bottom\", labeller=labeller(pheno = labels))+
+  theme(strip.placement = \"outside\", strip.background = element_blank(), panel.spacing = unit(2, \"lines\"), axis.title.x = element_blank(), strip.text.x = element_text(size = 8, face = \"bold\"), axis.text.x = element_text(size = 7), axis.text.y = element_text(size = 7))
+#dev.off()
+ggsave(\"figure_2_hists\", path = \"../figures_tables\", device = \"pdf\")
+```"

@@ -1,0 +1,15 @@
+Phenotype,Minimum of Top 9,Maximum of Top 9,Median of Top 9,Std. Error of Top 9,Minimum of collection,Maximum of collection,Median collection,Std. Error of collection,Wilcoxin p-values,Bonferroni p-values,Top 9 proportion of collection's distribution
+Precocity (years),0.99,1.96,1.53,0.126,0.874,4,1.46,0.0177,0.602,1,0.312
+Flowering date (julian days),152,154,154,0.323,143,164,153,0.0669,0.916,1,0.106
+Time to ripen (days),99.7,136,121,4.81,71,139,108,0.534,0.132,1,0.537
+Harvest date (julian days),254,286,275,4.58,225,290,261,0.548,0.124,1,0.488
+Juiciness (%),12.5,20.5,17.2,1.19,0.378,23.7,13.4,0.182,0.0398,0.557,0.345
+Weight (g),145,228,196,10.4,7.57,460,160,2.24,0.0479,0.671,0.183
+Firmness (kg/cm^2),8.03,11,8.69,0.369,1.99,14.2,8.39,0.0642,0.306,1,0.239
+SSC (Brix),9.93,16.5,11.2,0.705,7.04,16.4,11.7,0.0443,0.625,1,0.706
+Acidity (g/L),2.72,12.3,7.03,1.42,1.41,26.4,7.83,0.132,0.541,1,0.385
+Phenolics (umol/g),1.54,5.45,3.33,0.544,0.293,27.9,3.92,0.125,0.268,1,0.142
+Change in weight (%),-34.1,24.1,0.0433,9.44,-59,68,-9.06,0.692,0.363,1,0.459
+Change in firmness (%),-50.7,3.75,-29,8.02,-67.7,13.4,-39.9,0.546,0.117,1,0.672
+Change in SSC (%),-0.927,31.8,12.2,4.58,-49.4,64.7,7.12,0.59,0.332,1,0.287
+Change in acidity (%),-44.1,-3.03,-25.9,5.87,-77.6,36.9,-31,0.642,0.121,1,0.359

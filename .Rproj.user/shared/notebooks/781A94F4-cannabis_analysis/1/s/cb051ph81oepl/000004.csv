@@ -1,0 +1,56 @@
+"0","```r
+#Are labels significantly different along PC1 and PC2?
+pc_labels_chem <- select(pc_chem_load, Sample, type, PC1, PC2)
+#Are PC1 and PC2 correlated with labels/ancestry.
+pc_labels_chem$type <- as.numeric(pc_labels_chem$type)
+summary(lm(PC1 ~ type, data = pc_labels_chem))
+```"
+"1","
+Call:
+lm(formula = PC1 ~ type, data = pc_labels_chem)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.0307 -1.7824 -0.6033  1.5971  7.7874 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -1.13643    0.31272  -3.634 0.000329 ***
+type         0.38486    0.09586   4.015 7.55e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 2.291 on 295 degrees of freedom
+Multiple R-squared:  0.05181,	Adjusted R-squared:  0.0486 
+F-statistic: 16.12 on 1 and 295 DF,  p-value: 7.549e-05
+"
+"0","```r
+summary(lm(PC2 ~ type, data = pc_labels_chem))
+```"
+"1","
+Call:
+lm(formula = PC2 ~ type, data = pc_labels_chem)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.2585 -1.1553  0.0247  1.1848  7.6297 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  2.20843    0.25425   8.686 2.62e-16 ***
+type        -0.74789    0.07793  -9.596  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 1.863 on 295 degrees of freedom
+Multiple R-squared:  0.2379,	Adjusted R-squared:  0.2353 
+F-statistic: 92.09 on 1 and 295 DF,  p-value: < 2.2e-16
+"
+"0","```r
+#remove rows that are 2-4.
+pc_labels_chem <- pc_labels_chem[which(pc_labels_chem$type == 1 | pc_labels_chem$type == 5 ),]
+median_pc_labels_chem <- pc_labels_chem %>% group_by(type) %>% get_summary_stats(PC1, PC2, type = \"median\")
+median_pc_labels_chem$type <- as.factor(median_pc_labels_chem$type)
+levels(median_pc_labels_chem$type) <- c(\"sativa\", \"indica\")
+median_pc_labels_chem %>% kable() %>% kable_styling()
+```"

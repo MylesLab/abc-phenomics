@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1618848476802.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "30E2CB3C",
+    "lastKnownWriteTime" : 6873445625844690533,
+    "last_content_update" : 1618848476802,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "7276F27A",
+        "caption" : "domestica",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=domestica&cache_key=7276F27A",
+        "displayedObservations" : 1030,
+        "environment" : "",
+        "object" : "domestica",
+        "preview" : 0,
+        "totalObservations" : 1030,
+        "variables" : 2
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

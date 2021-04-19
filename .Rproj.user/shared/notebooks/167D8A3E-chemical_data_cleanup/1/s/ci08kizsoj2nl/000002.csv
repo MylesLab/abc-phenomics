@@ -1,0 +1,6 @@
+"0","```r
+#Rename samples which have clones to have the same spelling
+chem_data[chem_data$Sample_Name == \"Northern lights\", \"Sample_Name\"] <- \"Northern Lights\"
+chem_data[chem_data$Sample_Name == \"Northern Light\", \"Sample_Name\"] <- \"Northern Lights\"
+chem_data[chem_data$Sample_Name == \"OG-Kush\", \"Sample_Name\"] <- \"OG Kush\"
+```"

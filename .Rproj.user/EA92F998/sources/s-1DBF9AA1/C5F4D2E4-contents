@@ -1,0 +1,459 @@
+---
+title: "ABC Phenomics Data Analysis"
+author: "Sophie Watts"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output:
+  html_notebook:
+    code_folding: hide
+    theme: cerulean
+    toc: true
+    toc_float: true
+
+---
+```{r setup, include=FALSE}
+
+#load packages
+library("readr")
+library("dplyr")
+library("RColorBrewer")
+library("gplots")
+library("viridis")
+library("scales")
+library("tidyverse")
+library("cowplot")
+library("gridExtra")
+library("grid")
+
+theme_set(theme_classic())
+
+```
+#Introduction
+This notebook contains the code written to analyze the ABC phenology, fruit quality and meta data and illustrates how the main figures for the ABC Phenomics manuscript were created.
+
+#Figure 1: World map of apples. The number of accessions from each country were tallied (Supp. Table 1) and placed over a world map to show the geographic origin of accessions in the ABC.
+
+#Figure 2: Histogram of fruit quality and phenology traits
+```{r histogram_traits, message=FALSE, warning=FALSE}
+
+#load pheno data
+abc_pheno <- read_csv("../outputs/20201003_pheno_meta_data.csv")
+
+#select phenos for figure
+abc_pheno <- abc_pheno %>% select(apple_id, precocity_16_harv, flowering_jul_16_harv, time_ripen_2017, date_jul_17_harv, weight_avg_17_harv, firmness_avg_17_harv, brix_17_harv, acidity_17_harv, tpc)  %>% gather(key="pheno", value="value", -apple_id) 
+
+
+#change the phenotype to a factor and reorder the factor
+class(abc_pheno$pheno)
+abc_pheno$pheno <- as.factor(abc_pheno$pheno)
+levels(abc_pheno$pheno)
+
+#set the levels for the factors and reoder the levels/rename
+abc_pheno$pheno <- factor(abc_pheno$pheno, levels=c("precocity_16_harv", "flowering_jul_16_harv", "time_ripen_2017", "date_jul_17_harv", "weight_avg_17_harv", "firmness_avg_17_harv",  "brix_17_harv", "acidity_17_harv", "tpc"))
+levels(abc_pheno$pheno)
+
+#the top ten apple varieties produced in the US in 2018 are as follows: Red Delicious (48), Gala (205), Fuji (160), Granny Smith (167), Honeycrisp (1223), Golden Delicious (222), McIntosh (57), Pink Lady (235), Rome (we don't have just Rome in the ABC) and Empire (171).
+
+#filter the top nine apples then calculate the max and the mean, then summarize to get min and max
+top_nine <-  abc_pheno %>% filter(apple_id %in% c(48, 205, 160, 167, 1223, 222, 57, 235, 171))
+
+#caluclate min of each trait
+min_top_nine <- top_nine %>% group_by(pheno) %>% slice(which.min(value))
+
+#caluclate max of each trait
+max_top_nine <- top_nine %>% group_by(pheno) %>% slice(which.max(value))
+
+#calculate the mean of the top nine
+mean_top_nine <- top_nine %>% group_by(pheno) %>% summarise(mean = mean(value, na.rm=T))
+
+#calculate IQR
+iqr_top_nine <- top_nine %>% group_by(pheno) %>% summarise(iqr_top_nine= IQR(value, na.rm=T))
+
+#make a table with the max and min values together
+min_max_top_nine <- left_join(min_top_nine, max_top_nine, by = "pheno")
+min_max_top_nine <- left_join(min_max_top_nine, mean_top_nine, by = "pheno")
+min_max_top_nine <- left_join(min_max_top_nine, iqr_top_nine, by = "pheno")
+
+min_max_top_nine <- min_max_top_nine %>% select(-c(apple_id.x, apple_id.y))
+
+#rename columns
+colnames(min_max_top_nine)[colnames(min_max_top_nine)=="value.x"] <- "min_top"
+colnames(min_max_top_nine)[colnames(min_max_top_nine)=="value.y"] <- "max_top"
+colnames(min_max_top_nine)[colnames(min_max_top_nine)=="mean"] <- "mean_top"
+
+
+min_max_top_nine <- min_max_top_nine %>% group_by(pheno)
+
+#make labels for each panel in the facet grid
+labels <- c(precocity_16_harv = "Precocity N=1109", flowering_jul_16_harv = "Flowering Date (JD) N=1069", time_ripen_2017 = "Time to Ripen (days) N=834", date_jul_17_harv = "Harvest Date (JD) N=866", weight_avg_17_harv = "Weight (g) N=862", firmness_avg_17_harv = "Firmness (kg/cm^2) N=863",  brix_17_harv = "SS (brix) N=857", acidity_17_harv = "Acidity (g/L) N=834", tpc = "Phenolic Content N=472")
+
+#make histograms for figure 2
+figure_2 <- abc_pheno %>% ggplot(aes(x=value))+
+  geom_rect(data = min_max_top_nine, aes(ymin = 0, ymax = Inf, xmin = min_top, xmax = max_top), fill = "lightgrey", inherit.aes = FALSE)+
+  geom_histogram(bins=30, size = 0.8)+
+  ylab("Count")+
+  scale_x_continuous(expand = c(0,0))+
+  scale_y_continuous(expand = c(0,0))+
+  facet_wrap(~pheno, scale='free', nrow=3, strip.position = "bottom", labeller=labeller(pheno = labels))+
+  theme(strip.placement = "outside", strip.background = element_blank(), panel.spacing = unit(2, "lines"), axis.title.x = element_blank(), strip.text.x = element_text(size = 8, face = "bold"), axis.text.x = element_text(size = 7), axis.text.y = element_text(size = 7))
+ggsave("figure_2_hists", path = "../figures_tables/main_figures", device = "pdf")
+
+
+```
+#Figure 3: Firmness at harvest and after storage.
+```{r, message=FALSE, warning=FALSE}
+
+#load pheno data
+abc_phenos <- read_csv("../outputs/20201003_pheno_meta_data.csv")
+
+acid_percent <- abc_phenos %>% select(apple_id, percent_acidity_17) %>% gather(key="pheno", value="value", -apple_id) 
+top_ten_acid_percent <-  acid_percent %>% filter(apple_id %in% c(48, 205, 160, 167, 1223, 222, 57, 235, 171))
+
+brix_percent <- abc_phenos %>% select(apple_id, percent_brix_17) %>% gather(key="pheno", value="value", -apple_id) 
+top_ten_brix_percent <-  brix_percent %>% filter(apple_id %in% c(48, 205, 160, 167, 1223, 222, 57, 235, 171))
+
+firmness_percent <- abc_phenos %>% select(apple_id, percent_firmness_avg_17) %>% gather(key="pheno", value="value", -apple_id) 
+top_ten_firmness_percent <-  firmness_percent %>% filter(apple_id %in% c(48, 205, 160, 167, 1223, 222, 57, 235, 171))
+
+weight_percent <- abc_phenos %>% select(apple_id, percent_weight_avg_17) %>% gather(key="pheno", value="value", -apple_id)
+top_ten_weight_percent <-  weight_percent %>% filter(apple_id %in% c(48, 205, 160, 167, 1223, 222, 57, 235, 171))
+
+#######################################################
+pdf("figure_3_storage.pdf", width = 8, height = 10)
+
+a1 <- ggplot(abc_phenos, aes(acidity_17_harv, acidity_17_stor))+
+  geom_point(size=1, alpha=0.7, colour = "darkgrey")+
+  theme_bw()+
+  labs(x="Acidity at harvest (g/L)", y="Acidity after storage (g/L)")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = "black", size=10), axis.title=element_text(size = 10, face = "bold"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black", size = 0.2), plot.title = element_text(size = 9))+
+  coord_fixed(xlim = c(0,27), ylim= c(0,27))+
+  stat_smooth(method="lm", col="black", se = FALSE)+
+  ggtitle(paste("r2 = ", signif(cor.test(abc_phenos$acidity_17_harv, abc_phenos$acidity_17_stor, method = "pearson")$estimate^2, digits = 3), " p-value =", signif(cor.test(abc_phenos$acidity_17_harv, abc_phenos$acidity_17_stor, method = "pearson")$p.value, digits = 2)))
+
+
+a2 = ggplot(data=abc_phenos, aes(abc_phenos$percent_acidity_17))+
+  geom_rect(data = top_ten_acid_percent, aes(ymin = 0, ymax = Inf, xmin = min(value, na.rm = T), xmax = max(value, na.rm = T)), fill = "lightgrey", inherit.aes = FALSE)+
+  geom_histogram(bins = 50)+
+  scale_x_continuous(name = "Change in acidity during storage (%) N=568")+
+  scale_y_continuous(name = "Count", expand = c(0,0))+
+  theme(axis.text=element_text(colour = "black", size=9), axis.title=element_text(size = 10, face = "bold"))
+
+
+##################################
+
+b1 <- ggplot(abc_phenos, aes(brix_17_harv, brix_17_stor))+
+  geom_point(size=1, alpha=0.7, colour = "darkgrey")+
+  theme_bw()+
+  labs(x="SS at harvest (Brix)", y="SS after storage (Brix)")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = "black", size=10), axis.title=element_text(size = 10, face = "bold"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black", size = 0.2), plot.title = element_text(size = 9))+
+  coord_fixed(xlim = c(5,22), ylim= c(5,22))+
+  stat_smooth(method="lm", col="black", se = FALSE)+
+  ggtitle(paste("r2 = ", signif(cor.test(abc_phenos$brix_17_harv, abc_phenos$brix_17_stor, method = "pearson")$estimate^2, digits = 3), " p-value =", signif(cor.test(abc_phenos$brix_17_harv, abc_phenos$brix_17_stor, method = "pearson")$p.value, digits = 2)))
+  
+  
+
+b2 = ggplot(data=abc_phenos, aes(abc_phenos$percent_brix_17))+
+  geom_rect(data = top_ten_brix_percent, aes(ymin = 0, ymax = Inf, xmin = min(value, na.rm = T), xmax = max(value, na.rm = T)), fill = "lightgrey", inherit.aes = FALSE)+
+  geom_histogram(bins = 50)+
+  scale_x_continuous(name = "Change in SS during storage (%) N=601")+
+  scale_y_continuous(name = "Count", expand = c(0,0))+
+  theme(axis.text=element_text(colour = "black", size=9), axis.title=element_text(size = 10, face = "bold"))
+
+#############################################
+
+f1 <- ggplot(abc_phenos, aes(firmness_avg_17_harv, firmness_avg_17_stor))+
+  geom_point(size=1, alpha=0.7, colour = "darkgrey")+
+  theme_bw()+
+  labs(x="Firmness at harvest (kg/cm2)", y="Firmness after storage (kg/cm2)")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = "black", size=10), axis.title=element_text(size = 10, face = "bold"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black", size = 0.2), plot.title = element_text(size = 9))+
+  coord_fixed(xlim = c(1.5,14.5), ylim= c(1.5,14.5))+
+  stat_smooth(method="lm", col="black", se = FALSE)+
+  ggtitle(paste("r2 = ", signif(cor.test(abc_phenos$firmness_avg_17_harv, abc_phenos$firmness_avg_17_stor, method = "pearson")$estimate^2, digits = 3), " p-value = ", signif(cor.test(abc_phenos$firmness_avg_17_harv, abc_phenos$firmness_avg_17_stor, method = "pearson")$p.value, digits = 2)))
+
+
+f2 = ggplot(data=abc_phenos, aes(abc_phenos$percent_firmness_avg_17))+
+  geom_rect(data = top_ten_firmness_percent, aes(ymin = 0, ymax = Inf, xmin = min(value, na.rm = T), xmax = max(value, na.rm = T)), fill = "lightgrey", inherit.aes = FALSE)+
+  geom_histogram(bins = 50)+
+  scale_x_continuous(name = "Change in firmness during storage (%) N=538")+
+  scale_y_continuous(name = "Count", expand = c(0,0))+
+  theme(axis.text=element_text(colour = "black", size=9), axis.title=element_text(size = 10, face = "bold"))
+
+
+#############################################
+
+
+w1 <- ggplot(abc_phenos, aes(weight_avg_17_harv, weight_avg_17_stor))+
+  geom_point(size=1, alpha=0.7, colour = "darkgrey")+
+  theme_bw()+
+  labs(x="Weight at harvest (g)", y="Weight after storage (g)")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = "black", size=10), axis.title=element_text(size = 10, face = "bold"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black", size = 0.2), plot.title = element_text(size = 9))+
+  coord_fixed(xlim = c(7,460), ylim= c(7,460))+
+  stat_smooth(method="lm", col="black", se = FALSE)+
+  ggtitle(paste("r2 = ", signif(cor.test(abc_phenos$weight_avg_17_harv, abc_phenos$weight_avg_17_stor, method = "pearson")$estimate^2, digits = 3), " p-value = ", signif(cor.test(abc_phenos$weight_avg_17_harv, abc_phenos$weight_avg_17_stor, method = "pearson")$p.value, digits = 2)))
+
+
+
+w2 = ggplot(data=abc_phenos, aes(abc_phenos$percent_weight_avg_17))+
+  geom_rect(data = top_ten_weight_percent, aes(ymin = 0, ymax = Inf, xmin = min(value, na.rm = T), xmax = max(value, na.rm = T)), fill = "lightgrey", inherit.aes = FALSE)+
+  geom_histogram(bins = 50)+
+  scale_x_continuous(name = "Change in weight during storage (%) N=536")+
+  scale_y_continuous(name = "Count", expand = c(0,0))+
+  theme(axis.text=element_text(colour = "black", size=9), axis.title=element_text(size = 10, face = "bold"))
+
+
+list_of_figures <- list(a1, a2, b1, b2, f1, f2, w1, w2)
+
+cowplot::plot_grid(
+  plotlist = list_of_figures,
+  nrow = 4, 
+  align = 'hv',
+  labels = "auto",
+  hjust = -1
+)
+dev.off()
+
+```
+#Figure 4: Correlation heatmap of phenology and fruit quality traits.
+```{r, message=FALSE, warning=FALSE}
+
+#Load phenotype table
+abc_phenos <- read_csv("../outputs/20201003_pheno_meta_data.csv")
+
+abc_phenos <- abc_phenos %>% dplyr::select(precocity_16_harv, flowering_jul_16_harv, time_ripen_2017, date_jul_17_harv, juiciness_16_harv, weight_avg_17_harv, firmness_avg_17_harv, brix_17_harv, acidity_17_harv, brix_acid_17_harv, tpc, percent_weight_avg_17, percent_firmness_avg_17, percent_brix_17, percent_acidity_17)
+
+abc_phenos[1:15] <- lapply(abc_phenos[1:15], as.character)
+abc_phenos[1:15] <- lapply(abc_phenos[1:15], as.numeric)
+
+#change from tbl to base dataframe.
+abc_phenos <- as.data.frame(abc_phenos)
+
+#create an empty matrix for correlations, make matrix with no data and just col and rows from final pheno table.
+pairwise_pheno_correlations=matrix(,ncol(abc_phenos), ncol(abc_phenos))
+rownames(pairwise_pheno_correlations)=colnames(abc_phenos)
+colnames(pairwise_pheno_correlations)=colnames(abc_phenos)
+#marix for pvalues.
+pairwise_pheno_correlations_pval=matrix(,ncol(abc_phenos), ncol(abc_phenos))
+rownames(pairwise_pheno_correlations_pval)=colnames(abc_phenos)
+colnames(pairwise_pheno_correlations_pval)=colnames(abc_phenos)
+
+#Treat the data as all quantitative data and run pearson's correlation.
+for (i in 1:ncol(abc_phenos)) {
+  phenoname_x = colnames(abc_phenos)[i]
+  for (j in 1:ncol(abc_phenos)) {
+    phenoname_y = colnames(abc_phenos)[j]
+    pairwise_pheno_correlations[j,i]=cor.test(abc_phenos[,i], abc_phenos[,j], method = "pearson")$estimate
+    pairwise_pheno_correlations_pval[j,i]= cor.test(abc_phenos[,i], abc_phenos[,j], method = "pearson")$p.value
+  }
+}
+
+#bonneferonni correct
+pairwise_pheno_correlations_pval[upper.tri(pairwise_pheno_correlations_pval)] = p.adjust(pairwise_pheno_correlations_pval[upper.tri(pairwise_pheno_correlations_pval)], method = "bonferroni")
+pairwise_pheno_correlations_pval[lower.tri(pairwise_pheno_correlations_pval)] = p.adjust(pairwise_pheno_correlations_pval[lower.tri(pairwise_pheno_correlations_pval)], method = "bonferroni")
+
+#make the heat map/
+#Set colour.
+hmcol = colorRampPalette(brewer.pal(7, "BrBG"))
+
+#Get one half of correlation square (aka one triangle). Set lower to NA.
+pairwise_pheno_correlations[lower.tri(pairwise_pheno_correlations)] <- NA
+
+#make heat map for correlations without key.
+pdf("figure_4_heatmap.pdf", width = 8, height = 8)
+mar.default <- c(0,0,0,0)
+par(mar=mar.default, cex = 0.5)
+heatmap.2(pairwise_pheno_correlations,
+          col = hmcol(1000),
+          key=T,
+          keysize = 2.5,
+          symm = T,
+          Colv = F,
+          Rowv = F,
+          trace="none",
+          dendrogram = "none",
+          density.info = "none",
+          symbreaks = T,
+          colsep = c(0:28),
+          rowsep = c(0:28),
+          sepcolor = "white",
+          sepwidth = c(0.05, 0.05),
+          symkey = T,
+          margin = c(12,12)
+          )
+dev.off()
+
+
+
+#heat map for pvals of correlations.
+
+#Get one half of correltaion square (aka one triangle). Set lower to NA.
+pairwise_pheno_correlations_pval[upper.tri(pairwise_pheno_correlations_pval)] <- NA
+
+#Pick colours.
+hmcol_p = rev(brewer.pal(3, "YlGn"))
+hmcol_p[3] = "#F7F7F7"
+
+
+pdf("figure_4_heatmap_pval.pdf", width = 8, height = 8)
+mar.default <- c(0,0,0,0)
+par(mar=mar.default, cex = 0.5)
+heatmap.2(pairwise_pheno_correlations_pval,
+          col = hmcol_p,
+          key=T,
+          keysize = 0.5,
+          symm = T,
+          Colv = F,
+          Rowv = F,
+          trace="none",
+          dendrogram = "none",
+          density.info = "none",
+          breaks = c(0, 0.01, 0.05, 1),
+          revC = F,
+          symbreaks = T,
+          colsep = c(0:28),
+          rowsep = c(0:28),
+          sepcolor = "white",
+          sepwidth = c(0.05, 0.05),
+          symkey = T,
+          margin = c(12, 12)
+          )
+dev.off()
+
+#save p-values and rhos for supplemental table.
+write.table(pairwise_pheno_correlations, file = "../figures_tables/supp_tables/supp_table_4_r2.csv", quote = F, sep = ",", row.names = F)
+
+write.table(pairwise_pheno_correlations_pval, file = "../figures_tables/supp_tables/supp_table_4_pvals.csv", quote = F, sep = ",", row.names = F)
+
+```
+#Figure 5: Correlation of firmness with phenology traits at harvest and after storage.
+```{r, message=FALSE, warning=FALSE}
+
+#load phenotype data
+abc_phenos <- read_csv("../outputs/20201003_pheno_meta_data.csv")
+
+abc_phenos <- abc_phenos %>% select(apple_id, flowering_jul_16_harv, date_jul_17_harv, time_ripen_2017, firmness_avg_17_harv, percent_firmness_avg_17)
+
+pdf("figure_5.pdf", width = 9, height = 6)
+
+a1 <- ggplot(abc_phenos, aes(flowering_jul_16_harv, firmness_avg_17_harv))+
+  geom_point(size=1, alpha=0.7, colour = "darkgrey")+
+  theme_bw()+
+  labs(x="Flowering date (Julian days)", y="Firmness (kg/cm)")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = "black", size=10), axis.title=element_text(size = 10, face = "bold"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black", size = 0.2), plot.title = element_text(size = 9))+
+  stat_smooth(method="lm", col="black", se = FALSE)+
+  ggtitle(paste("r2 = ", signif(cor.test(abc_phenos$flowering_jul_16_harv, abc_phenos$firmness_avg_17_harv, method = "pearson")$estimate^2, digits = 3), " p-value = ", signif(cor.test(abc_phenos$flowering_jul_16_harv, abc_phenos$firmness_avg_17_harv, method = "pearson")$p.value, digits = 2))) 
+
+a2 <- ggplot(abc_phenos, aes(date_jul_17_harv, firmness_avg_17_harv))+
+  geom_point(size=1, alpha=0.7, colour = "darkgrey")+
+  theme_bw()+
+  labs(x="Harvest date (Julian days)", y="Firmness (kg/cm)")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = "black", size=10), axis.title=element_text(size = 10, face = "bold"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black", size = 0.2), plot.title = element_text(size = 9))+
+  stat_smooth(method="lm", col="black", se = FALSE)+
+  ggtitle(paste("r2 = ", signif(cor.test(abc_phenos$date_jul_17_harv, abc_phenos$firmness_avg_17_harv, method = "pearson")$estimate^2, digits = 3), " p-value = ", signif(cor.test(abc_phenos$date_jul_17_harv, abc_phenos$firmness_avg_17_harv, method = "pearson")$p.value, digits = 2)))
+
+a3 <- ggplot(abc_phenos, aes(time_ripen_2017, firmness_avg_17_harv))+
+  geom_point(size=1, alpha=0.7, colour = "darkgrey")+
+  theme_bw()+
+  labs(x="Time to ripen (days)", y="Firmness (kg/cm)")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = "black", size=10), axis.title=element_text(size = 10, face = "bold"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black", size = 0.2), plot.title = element_text(size = 9))+
+  stat_smooth(method="lm", col="black", se = FALSE)+
+  ggtitle(paste("r2 = ", signif(cor.test(abc_phenos$time_ripen_2017, abc_phenos$firmness_avg_17_harv, method = "pearson")$estimate^2, digits = 3), " p-value = ", signif(cor.test(abc_phenos$time_ripen_2017, abc_phenos$firmness_avg_17_harv, method = "pearson")$p.value, digits = 2)))
+  
+a4 <- ggplot(abc_phenos, aes(flowering_jul_16_harv, percent_firmness_avg_17))+
+  geom_point(size=1, alpha=0.7, colour = "darkgrey")+
+  theme_bw()+
+  labs(x="Flowering date (Julian days)", y="Firmness loss during storage (%)")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = "black", size=10), axis.title=element_text(size = 10, face = "bold"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black", size = 0.2), plot.title = element_text(size = 9))+
+  stat_smooth(method="lm", col="black", se = FALSE)+
+  ggtitle(paste("r2 = ", signif(cor.test(abc_phenos$flowering_jul_16_harv, abc_phenos$percent_firmness_avg_17, method = "pearson")$estimate^2, digits = 3), " p-value = ", signif(cor.test(abc_phenos$flowering_jul_16_harv, abc_phenos$percent_firmness_avg_17, method = "pearson")$p.value, digits = 2)))
+
+a5 <- ggplot(abc_phenos, aes(date_jul_17_harv, percent_firmness_avg_17))+
+  geom_point(size=1, alpha=0.7, colour = "darkgrey")+
+  theme_bw()+
+  labs(x="Harvest date (Julian days)", y="Firmness loss during storage (%)")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = "black", size=10), axis.title=element_text(size = 10, face = "bold"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black", size = 0.2), plot.title = element_text(size = 9))+
+  stat_smooth(method="lm", col="black", se = FALSE)+
+  ggtitle(paste("r2 = ", signif(cor.test(abc_phenos$date_jul_17_harv, abc_phenos$percent_firmness_avg_17, method = "pearson")$estimate^2, digits = 3), " p-value = ", signif(cor.test(abc_phenos$date_jul_17_harv, abc_phenos$percent_firmness_avg_17, method = "pearson")$p.value, digits = 2)))
+
+a6 <- ggplot(abc_phenos, aes(time_ripen_2017, percent_firmness_avg_17))+
+  geom_point(size=1, alpha=0.7, colour = "darkgrey")+
+  theme_bw()+
+  labs(x="Time to ripen (days)", y="Firmness loss during storage (%)")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = "black", size=10), axis.title=element_text(size = 10, face = "bold"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black", size = 0.2), plot.title = element_text(size = 9))+
+  stat_smooth(method="lm", col="black", se = FALSE)+
+  ggtitle(paste("r2 = ", signif(cor.test(abc_phenos$time_ripen_2017, abc_phenos$percent_firmness_avg_17, method = "pearson")$estimate^2, digits = 3), " p-value = ", signif(cor.test(abc_phenos$time_ripen_2017, abc_phenos$percent_firmness_avg_17, method = "pearson")$p.value, digits = 2)))
+
+list_of_figures <- list(a1, a2, a3, a4, a5, a6)
+
+cowplot::plot_grid(
+  plotlist = list_of_figures,
+  nrow = 2, 
+  align = 'hv',
+  labels = "auto",
+  hjust = -1
+)
+dev.off()
+
+
+```
+#Figure 6: Fruit quality and phenology traits across species, geographic region and use.
+```{r}
+#load data
+abc_phenos <- read_csv("../outputs/20201003_pheno_meta_data.csv")
+
+#Sean's stuff - this is how he does it.
+dom = (abc_phenos$species == "domestica")
+siev = (abc_phenos$species == "sieversii")
+old = (abc_phenos$world == "old")
+new = (abc_phenos$world == "new")
+cider = (abc_phenos$use == "cider")
+dessert = (abc_phenos$use == "dessert")
+
+abc_phenos <- abc_phenos %>% select(precocity_16_harv, flowering_jul_16_harv, time_ripen_2017, date_jul_17_harv, juiciness_16_harv, weight_avg_17_harv, firmness_avg_17_harv, brix_17_harv, acidity_17_harv, brix_acid_17_harv, tpc, percent_weight_avg_17, percent_firmness_avg_17, percent_brix_17, percent_acidity_17)
+
+abc_phenos <- as.data.frame(abc_phenos)
+
+species_p = world_p = use_p = dom_median = siev_median = old_median = new_median = dessert_median = cider_median = c()
+for (i in 1:ncol(abc_phenos)) {
+    vec_loop = as.numeric(abc_phenos[,i])
+    dom_median[i] = round(median(vec_loop[dom], na.rm = T), 3)
+    siev_median[i] = round(median(vec_loop[siev], na.rm = T), 3)
+    old_median[i] = round(median(vec_loop[old], na.rm = T), 3)
+    new_median[i] = round(median(vec_loop[new], na.rm = T), 3)
+    dessert_median[i] = round(median(vec_loop[dessert], na.rm = T), 3)
+    cider_median[i] = round(median(vec_loop[cider], na.rm = T), 3)
+    species_p[i] = wilcox.test(vec_loop[dom], vec_loop[siev])$p.val
+    world_p[i] = wilcox.test(vec_loop[old], vec_loop[new])$p.val
+    use_p[i] = wilcox.test(vec_loop[dessert], vec_loop[cider])$p.val
+}
+
+#Correct for multiple comparisons
+species_p = species_p * (ncol(abc_phenos)*3)
+world_p = world_p * (ncol(abc_phenos)*3)
+use_p = use_p * (ncol(abc_phenos)*3)
+pval_tab = cbind(colnames(abc_phenos), dom_median, siev_median, species_p, new_median, old_median,world_p, dessert_median, cider_median, use_p)
+
+write.table(pval_tab, file = "../figures_tables/supp_tables/supp_table_6.txt", sep = "\t", row.names = F, quote = F)
+
+
+```
+#Figure 7: correlation of year of release and phenolic content
+```{r}
+#load data
+abc_phenos <- read_csv("../outputs/20201003_pheno_meta_data.csv")
+
+#remove rows of apples that do not phenolic or year of release data.
+abc_phenos <- abc_phenos[!is.na(abc_phenos$release_year),  ]
+abc_phenos <- abc_phenos[!is.na(abc_phenos$tpc),  ]
+
+figure_6 <- ggplot(abc_phenos, aes(release_year, tpc))+
+  geom_point(size=1, alpha=0.7, colour = "darkgrey")+
+  theme_bw()+
+  coord_cartesian(xlim = c(1810,2013), ylim= c(0,15))+
+  labs(x="Year of Release", y="Total Phenolic Content (µmol GAE/g FW)")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = "black", size=10), axis.title=element_text(size = 10, face = "bold"), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black", size = 0.2), plot.title = element_text(size = 9))+
+  stat_smooth(method="lm", col="black", se = FALSE)+
+ggsave("figure_7", device = "pdf", path = "../figures_tables/main_figures")
+
+
+
+
+```

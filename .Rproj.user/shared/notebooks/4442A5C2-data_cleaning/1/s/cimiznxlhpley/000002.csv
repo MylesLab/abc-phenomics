@@ -1,0 +1,26 @@
+"0","```r
+#load phenotype data
+abc_phenos <- read_csv(\"../data/20190322_final_all_abc_phenos.csv\")
+#load ripening time from 2017. This phenoytpe was  REML corrected after all the other phenotypes because it wasn't originally going to be included.
+time_ripen <- read_csv(\"../data/20200305_time_ripen_2017.csv\")
+#join tables
+abc_phenos <- left_join(abc_phenos, time_ripen, by = \"apple_id\")
+#remove phenotypes we don't need
+#remove phones we don't need to show.
+abc_phenos <- abc_phenos %>% select(-firmness_var_16_stor, -weight_var_16_harv, -firmness_var_16_harv, -brix_var_16_harv, -branch_val_16_harv, -change_firmness_var_16, -percent_firmness_var_16, -change_acidity_16, -change_brix_avg_16, -change_brix_acid_16, -change_weight_avg_16, -change_firmness_avg_16, -firmness_var_17_stor, -percent_decay_17_stor, -percent_disorder_17_stor, -firmness_var_17_harv, -change_firmness_var_17, -change_acidity_17, -change_brix_17, -change_weight_avg_17, -change_firmness_avg_17, -percent_firmness_var_17, -change_brix_acid_17, -dead_trees, -oct_frost_percent_disordered, -spring_frost_lower_index, -spring_frost_upper_index, -spring_frost_pooled_index, -spring_frost_difference_index, -flowering_gdd_16_harv, -date_gdd_16_harv, -date_gdd_17_harv)
+#we also want to inlcude the ACCID that's linked to the apple ids, load ABC population file.
+abc_pop_info <- read_excel(\"../data/20200204_abc_pop_info.xlsx\")
+
+```"
+"1","
+-
+/
+                                                                                                                
+"
+"0","```r
+#delete  irrelevant columns
+abc_pop_info <- abc_pop_info %>% select(PLANTID, ACCID, origin, apple_id)
+abc_pop_info <- abc_pop_info[!duplicated(abc_pop_info$apple_id), ]
+#join phenotype table and population file.
+abc_phenos <- left_join(abc_phenos, abc_pop_info, by = \"apple_id\")
+```"

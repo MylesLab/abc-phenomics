@@ -1,0 +1,16 @@
+"0","```r
+#load chemical data
+chem_data <- read_excel(\"../data/170428 Bedrocan_chem_sample mg per g.xlsx\")
+```"
+"1","
+-
+/
+                                                                                                                           
+"
+"0","```r
+#load in short names for chemicals
+short_chem <- read_delim(\"../data/170428_chem.txt\", 
+                           \"\t\", escape_double = FALSE, trim_ws = TRUE)
+#set colnames to short names.
+colnames(chem_data) <- colnames(short_chem)
+```"

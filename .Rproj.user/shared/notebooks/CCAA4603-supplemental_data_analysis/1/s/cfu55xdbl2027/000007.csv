@@ -1,0 +1,12 @@
+"0","supp_figure_2 <- ggplot(abc_phenos, aes(tpc, frap))+
+  geom_point(size=1, alpha=0.7, colour = ""darkgrey"")+
+  theme_bw()+
+  labs(x=""Total phenolic content"", y=""Ferric reducing antioxidant powers"")+
+  theme(panel.border = element_blank(), axis.text=element_text(colour = ""black"", size=10), axis.title=element_text(size = 10, face = ""bold""), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = ""black"", size = 0.2), plot.title = element_text(size = 9))+
+  coord_fixed(xlim = c(0,40), ylim= c(0,40))+
+  stat_smooth(method=""lm"", col=""black"", se=FALSE)+
+  ggtitle(paste(""r2 = "", signif(cor.test(abc_phenos$tpc, abc_phenos$frap, method = ""pearson"")$estimate^2, digits = 2), "" p-value ="", signif(cor.test(abc_phenos$tpc, abc_phenos$frap, method = ""pearson"")$p.value, digits = 2)))
+ggsave(""supp_figure_2"", path = ""../figures_tables/supp_figures"", device = ""pdf"")
+"
+"2","Saving 7 x 7 in image
+"

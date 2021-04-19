@@ -1,0 +1,162 @@
+"0","```r
+#look at country
+table(meta_data$country)
+```"
+"1","
+        Afghanistan             Algeria           australia           Australia             Austria 
+                  1                   1                   4                  12                   1 
+            belgium             Belgium              Brazil            Bulgaria              canada 
+                  1                  11                   4                   2                 191 
+             Canada               China      czech Republic      Czech Republic             denmark 
+                 87                   4                   1                   6                   4 
+            Denmark             England             Estonia              europe              Europe 
+                  6                   3                   2                   4                   3 
+            Finland former Soviet Union Former Soviet Union              france              France 
+                  3                  13                  32                   6                  72 
+            germany             Germany             hungary               India             Ireland 
+                 13                  41                   1                   2                   5 
+             Israel              isreal              Isreal               italy               Italy 
+                  2                   1                   1                   2                   1 
+              japan               Japan          kazakhstan          Kazakhstan              latvia 
+                  4                  17                  10                  66                   1 
+             Latvia           Lithuania           Macedonia                  NA         netherlands 
+                  7                   1                   1                  27                   4 
+        Netherlands         New Zealand            Pakistan              poland              Poland 
+                 16                   7                   2                   4                   4 
+           Portugal             romania             Romania              Russia            Scotland 
+                  2                   1                   8                   5                   1 
+             Serbia        south Africa        South Africa               Spain              sweden 
+                  1                   2                   4                   9                   2 
+             Sweden         switzerland         Switzerland          Tajikistan        Turkmenistan 
+                  7                   2                  11                   1                   2 
+            Ukraine      United Kingdom       United States          Uzbekistan               Wales 
+                  4                 103                 234                   2                   1 
+         yugoslavia          Yugoslavia            Zimbabwe 
+                  1                   1                   1 
+"
+"0","```r
+meta_data[which(meta_data$country== \"NA\"), \"country\"] <- NA
+#clean up country names
+meta_data[which(meta_data$country==\"australia\"), \"country\"] <- \"Australia\"
+meta_data[which(meta_data$country==\"belgium\"), \"country\"] <- \"Belgium\"
+meta_data[which(meta_data$country==\"czech Republic\"), \"country\"] <- \"Czech Republic\"
+meta_data[which(meta_data$country==\"denmark\"), \"country\"] <- \"Denmark\"
+meta_data[which(meta_data$country==\"former Soviet Union\"), \"country\"] <- \"Former Soviet Union\"
+meta_data[which(meta_data$country==\"france\"), \"country\"] <- \"France\"
+meta_data[which(meta_data$country==\"England\"), \"country\"] <- \"United Kingdom\"
+meta_data[which(meta_data$country==\"Wales\"), \"country\"] <- \"United Kingdom\"
+meta_data[which(meta_data$country==\"Scotland\"), \"country\"] <- \"United Kingdom\"
+meta_data[which(meta_data$country==\"germany\"), \"country\"] <- \"Germany\"
+meta_data[which(meta_data$country==\"isreal\"), \"country\"] <- \"Isreal\"
+meta_data[which(meta_data$country==\"italy\"), \"country\"] <- \"Italy\"
+meta_data[which(meta_data$country==\"japan\"), \"country\"] <- \"Japan\"
+meta_data[which(meta_data$country==\"kazakhstan\"), \"country\"] <- \"Kazakhstan\"
+meta_data[which(meta_data$country==\"latvia\"), \"country\"] <- \"Latvia\"
+meta_data[which(meta_data$country==\"netherlands\"), \"country\"] <- \"Netherlands\"
+meta_data[which(meta_data$country==\"poland\"), \"country\"] <- \"Poland\"
+meta_data[which(meta_data$country==\"romania\"), \"country\"] <- \"Romania\"
+meta_data[which(meta_data$country==\"south Africa\"), \"country\"] <- \"South Africa\"
+meta_data[which(meta_data$country==\"sweden\"), \"country\"] <- \"Sweden\"
+meta_data[which(meta_data$country==\"switzerland\"), \"country\"] <- \"Switzerland\"
+meta_data[which(meta_data$country==\"yugoslavia\"), \"country\"] <- \"Yugoslavia\"
+meta_data[which(meta_data$country==\"europe\"), \"country\"] <- \"Europe\"
+meta_data[which(meta_data$country==\"canada\"), \"country\"] <- \"Canada\"
+meta_data[which(meta_data$country==\"hungary\"), \"country\"] <- \"Hungary\"
+meta_data[which(meta_data$country==\"Isreal\"), \"country\"] <- \"Israel\"
+# Create replacements data frame
+old_replaces <- data.frame(country = c('Afghanistan', 'Algeria','Austria', 'Belgium', 'Bulgaria', 'China', 'Czech Republic', 'Denmark', 'Estonia', 'Europe', 'Finland', 'Former Soviet Union', 'France', 'Germany', 'Hungary', 'India', 'Ireland', 'Israel', 'Italy', 'Japan', 'Kazakhstan', 'Latvia', 'Lithuania', 'Macedonia', 'Netherlands', 'Pakistan', 'Poland', 'Portugal', 'Romania', 'Russia', 'Serbia', 'Spain', 'Sweden', 'Switzerland', 'Tajikistan', 'Turkmenistan', 'Ukraine', 'United Kingdom', 'Uzbekistan', 'Yugoslavia'), old = \"old\")
+new_replaces <- data.frame(country = c('Australia', 'Brazil', 'Canada', 'New Zealand',  'United States', 'South Africa', 'Zimbabwe'), new = \"new\")
+meta_data <- full_join(meta_data, old_replaces, by = \"country\")
+meta_data <- full_join(meta_data, new_replaces, by = \"country\")
+#unite
+meta_data <- unite(meta_data, location, old, new)
+table(meta_data$location)
+```"
+"1","
+ NA_NA NA_new old_NA 
+    27    546    546 
+"
+"0","```r
+#fix values in columns
+meta_data[which(meta_data$location== \"NA_NA\"), \"location\"] <- NA
+meta_data[which(meta_data$location== \"NA_new\"), \"location\"] <- \"new\"
+meta_data[which(meta_data$location== \"old_NA\"), \"location\"] <- \"old\"
+#look at use column
+table(meta_data$use)
+```"
+"1","
+        cider         Cider       cooking       Cooking Cooking/Cider          crab          Crab    Crab Apple 
+           45            58             7            42             1             2             1             2 
+      dessert       Dessert        eating        Eating            NA     Rootstock          wild          Wild 
+          485            95            12           164           124             1            11            68 
+"
+"0","```r
+meta_data[which(meta_data$use== \"NA\"), \"use\"] <- NA
+#change values in \"use\" column to either cider of dessert.
+cider_replaces <- data.frame(use = c(\"cider\", \"Cider\", \"Cooking/Cider\"), cider = \"cider\")
+dessert_replaces <- data.frame(use = c(\"cooking\", \"Cooking\", \"dessert\", \"Dessert\", \"eating\", \"Eating\"), dessert = \"dessert\")
+wild_replaces <- data.frame(use = c(\"wild\", \"Wild\"), wild = \"wild\")
+meta_data <- full_join(meta_data, cider_replaces, by = \"use\")
+meta_data <- full_join(meta_data, dessert_replaces, by = \"use\")
+meta_data <- full_join(meta_data, wild_replaces, by = \"use\")
+#delete crab uses
+meta_data[which(meta_data$use== \"crab\"), \"use\"] <- NA
+meta_data[which(meta_data$use== \"Crab Apple\"), \"use\"] <- NA
+meta_data[which(meta_data$use== \"Crab\"), \"use\"] <- NA
+meta_data[which(meta_data$use== \"Rootstock\"), \"use\"] <- NA
+meta_data <- unite(meta_data, new_use, cider, dessert, wild)
+meta_data[which(meta_data$new_use== \"cider_NA_NA\"), \"new_use\"] <- \"cider\"
+meta_data[which(meta_data$new_use== \"NA_dessert_NA\"), \"new_use\"] <- \"dessert\"
+meta_data[which(meta_data$new_use== \"NA_NA_NA\"), \"new_use\"] <- NA
+meta_data[which(meta_data$new_use== \"NA_NA_wild\"), \"new_use\"] <- \"wild\"
+#delete use column
+meta_data$use <- NULL
+#rename columns
+meta_data <- meta_data %>% dplyr::rename(use = new_use) %>% dplyr::rename(world = location)
+names(meta_data)[names(meta_data) == \"new_use\"] <- \"use\"
+names(meta_data)[names(meta_data) == \"location\"] <- \"world\"
+#check
+#Use there are 104, cider, 805 dessert, 79 wild
+wild <-meta_data[which(meta_data$use== \"wild\"), ]
+#species: 1032 domestica, 78 sieversii
+sieversii <-meta_data[which(meta_data$species== \"sieversii\"), ]
+kazakh <-meta_data[which(meta_data$country== \"Kazakhstan\"), ]
+#world: 546 new, 546 old
+table(meta_data$world)
+```"
+"1","
+new old 
+546 546 
+"
+"0","```r
+#change apple id 200 to wild use since it's sieversii
+meta_data[which(meta_data$apple_id== 200), \"use\"] <- \"wild\"
+#Change apple id 193 and 190 use to NA because the species is domestica so their use is not wild.
+meta_data[which(meta_data$apple_id== 193), \"use\"] <- NA
+meta_data[which(meta_data$apple_id== 190), \"use\"] <- NA
+#check
+table(meta_data$use)
+```"
+"1","
+  cider dessert    wild 
+    104     804      78 
+"
+"0","```r
+#now there are 104 cider, 804 dessert, 78 wild
+table(meta_data$world)
+```"
+"1","
+new old 
+546 546 
+"
+"0","```r
+#now there are 546 new world and 546 old (there will be 469 for comparisons when the wild sieversii apples are removed.)
+table(meta_data$species)
+```"
+"1","
+domestica sieversii 
+     1032        78 
+"
+"0","```r
+#1032 domestica, 78 sieversii. Perfect, number of wild matches number of sieversii.
+```"

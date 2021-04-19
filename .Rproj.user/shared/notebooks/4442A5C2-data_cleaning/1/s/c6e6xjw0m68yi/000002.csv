@@ -1,0 +1,9 @@
+"0","```r
+#merge tables
+final_phenos <- left_join(meta_data, abc_phenos, by = \"apple_id\")
+#re-arrange order of the columns
+col_order <- c(46, 1, 47, 48, 2, 6, 4, 5, 3, 7:45)
+final_phenos <- final_phenos[, col_order] 
+#save
+write.table(final_phenos, file = \"../outputs/20201003_pheno_meta_data.csv\", quote = F, sep = \",\", row.names = F)
+```"

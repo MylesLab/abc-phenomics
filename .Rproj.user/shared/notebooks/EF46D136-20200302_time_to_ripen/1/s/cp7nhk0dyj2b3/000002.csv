@@ -1,0 +1,15 @@
+"0","#need to take cleaned up harvest date 2017 and flowering time 2016 (prior to reml) and subtract them from eachother. Then need to run remland add them to the big pheno table.
+library(""lme4"")
+"
+"2","Loading required package: Matrix
+"
+"2","package ‘Matrix’ was built under R version 3.5.2"
+"2","
+Attaching package: ‘Matrix’
+
+"
+"2","The following objects are masked from ‘package:tidyr’:
+
+    expand, pack, unpack
+
+"

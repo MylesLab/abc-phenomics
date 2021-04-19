@@ -1,0 +1,6 @@
+"0","sd(domestica$precocity_16_harv, na.rm = T)/sqrt(sum(domestica$precocity_16_harv, na.rm = T))
+"
+"1","[1]"
+"1"," 0.01487577"
+"1","
+"

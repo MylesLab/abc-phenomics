@@ -1,0 +1,4 @@
+"0","```r
+chem_data$mono_total = rowSums(chem_data[,c(6:20)])
+hist(chem_data$mono_total, breaks = 100)
+```"

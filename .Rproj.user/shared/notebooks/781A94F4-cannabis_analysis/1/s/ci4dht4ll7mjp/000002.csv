@@ -1,0 +1,14 @@
+"0","```r
+#Run a type II ANOVA including, guaiol, beta-eudesmol, gamma-eudesmol and myrcene as factors.
+lm(ind_sat ~ guaiol+b_eudesmol+g_eudesmol+myrcene, data = chem_data)
+
+```"
+"1","
+Call:
+lm(formula = ind_sat ~ guaiol + b_eudesmol + g_eudesmol + myrcene, 
+    data = chem_data)
+
+Coefficients:
+(Intercept)       guaiol   b_eudesmol   g_eudesmol      myrcene  
+     1.9274      -0.3292      -0.5431       3.0885       0.1276  
+"
