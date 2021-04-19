@@ -5,7 +5,7 @@ This repository contains files and scripts for the ABC phenomics project. The re
 Contact: Sophie Watts (sophie.watts@dal.ca)
 
 
-## source
+## Source
 
 **data cleaning:** script containing the code for data curation.
 
@@ -22,14 +22,14 @@ Contact: Sophie Watts (sophie.watts@dal.ca)
 
 **20200204 abc pop info:** file contaning cultivar names, apple-IDs, accession numbers for accessions in the ABC.
 
-**20200305 time ripen 2017:** Time to ripen data from 2017.
+**20200305 time ripen 2017:** time to ripen data from 2017.
 
-**20201102 meta data:** File containing meta data for accesions in the ABC.
+**20201102 meta data:** file containing raw meta data for accesions in the ABC.
 
 
 ## Outputs
 
-**pheno meta data:** Output file created from the data cleaning script and is the curated file of phenotypic and meta data used for all analyses.
+**pheno meta data:** uutput file created from the data cleaning script and is the curated file of phenotypic and meta data used for all analyses.
 
 ## Figures Tables
 
