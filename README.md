@@ -24,12 +24,12 @@ Contact: Sophie Watts (sophie.watts@dal.ca)
 
 **20200305 time ripen 2017:** time to ripen data from 2017.
 
-**20201102 meta data:** file containing raw meta data for accesions in the ABC.
+**20201102 meta data:** file containing raw meta data for accessions in the ABC. This file is cleaned up in the "data cleaning" script found in the source folder.
 
 
 ## Outputs
 
-**pheno meta data:** uutput file created from the data cleaning script and is the curated file of phenotypic and meta data used for all analyses.
+**pheno meta data:** output file created from the data cleaning script and is the curated file of phenotypic and meta data used for all analyses (this is the same file as supp table 1).
 
 ## Figures Tables
 
