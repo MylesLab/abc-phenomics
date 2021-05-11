@@ -1,5 +1,4 @@
 ,,Correlation coefficient (r),,,,,,,,,,,,,
-,,,,,,,,,,,,,,,
 ,,Precocity,Flowering date,Time to ripen,Harvest date,Juiciness,Weight,Firmness,Soluble solids,Acidity,Soluble solids/acidity,Change in weight,Change in firmness,Change in SS,Change in acidity
 P-value,Precocity,,0.017061229,0.011608419,0.013102989,0.003300153,0.000485681,0.009038999,0.001274096,0.005464167,0.00854526,0.009224772,0.00531939,0.001400395,0.000936448
 ,Flowering date,0.001700722,,0.047632748,0.086229474,0.010624966,0.0037619,0.071194243,0.010023312,0.004981386,0.013597183,0.01447602,0.009104187,3.55E-05,0.001188613
